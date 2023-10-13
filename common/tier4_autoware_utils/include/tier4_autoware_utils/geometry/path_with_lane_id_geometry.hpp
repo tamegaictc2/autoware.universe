@@ -51,7 +51,7 @@ inline void setPose(
 
 template <>
 inline void setLongitudinalVelocity(
-  const double velocity, autoware_auto_planning_msgs::msg::PathPointWithLaneId & p)
+  const float velocity, autoware_auto_planning_msgs::msg::PathPointWithLaneId & p)
 {
   p.point.longitudinal_velocity_mps = velocity;
 }
