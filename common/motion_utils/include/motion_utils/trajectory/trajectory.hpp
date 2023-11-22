@@ -216,7 +216,8 @@ double calcLongitudinalOffsetToSegment(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    std::cerr << e.what() << " Since throw_exception = False, return NaN. You need to fix the code."
+              << std::endl;
     return std::nan("");
   }
 
@@ -325,7 +326,8 @@ double calcLateralOffset(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    std::cerr << e.what() << " Since throw_exception = False, return Nan. You need to fix the code."
+              << std::endl;
     return std::nan("");
   }
 
