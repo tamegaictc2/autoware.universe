@@ -77,6 +77,7 @@ struct ExtendedPredictedObject
   autoware_auto_perception_msgs::msg::Shape shape;
   std::vector<PredictedPathWithPolygon> predicted_paths;
 };
+using ExtendedPredictedObjects = std::vector<ExtendedPredictedObject>;
 
 /**
  * @brief Specifies which object class should be checked.
@@ -132,6 +133,14 @@ struct RSSparams
   double rear_vehicle_deceleration;              ///< brake parameter
 };
 
+struct IntegralPredictedPolygonParams
+{
+  double forward_margin{0.0};   ///< Forward margin for extended ego polygon for collision check.
+  double backward_margin{0.0};  ///< Backward margin for extended ego polygon for collision check.
+  double lat_margin{0.0};       ///< Lateral margin for extended ego polygon for collision check.
+  double time_horizon{0.0};     ///< Time horizon for object's prediction.
+};
+
 /**
  * @brief Parameters for generating the ego vehicle's predicted path.
  */
@@ -169,12 +178,15 @@ struct ObjectsFilteringParams
  */
 struct SafetyCheckParams
 {
-  bool enable_safety_check;  ///< Enable safety checks.
+  bool enable_safety_check;      ///< Enable safety checks.
+  std::string method{"RSS"};     /// Method to use for safety checks.
+  double keep_unsafe_time{0.0};  ///< Time to keep unsafe before changing to safe.
   double
-    hysteresis_factor_expand_rate;   ///< Hysteresis factor to expand/shrink polygon with the value.
-  double backward_path_length;       ///< Length of the backward lane for path generation.
-  double forward_path_length;        ///< Length of the forward path lane for path generation.
-  RSSparams rss_params;              ///< Parameters related to the RSS model.
+    hysteresis_factor_expand_rate;  ///< Hysteresis factor to expand/shrink polygon with the value.
+  double backward_path_length;      ///< Length of the backward lane for path generation.
+  double forward_path_length;       ///< Length of the forward path lane for path generation.
+  RSSparams rss_params;             ///< Parameters related to the RSS model.
+  IntegralPredictedPolygonParams integral_predicted_polygon_params{};  ///< Parameters for polygon.
   bool publish_debug_marker{false};  ///< Option to publish debug markers.
 };
 

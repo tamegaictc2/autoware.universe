@@ -688,22 +688,27 @@ void GoalPlannerModule::setLanes()
 void GoalPlannerModule::setOutput(BehaviorModuleOutput & output)
 {
   if (status_.is_safe_static_objects) {
+    // print line
+    std::cerr << "func: " << __func__ << ", line: " << __LINE__ << std::endl;
     if (isSafePath()) {
       // clear stop pose when the path is safe against static/dynamic objects and activated
+      std::cerr << "func: " << __func__ << ", line: " << __LINE__ << std::endl;
       if (isActivated()) {
+        std::cerr << "func: " << __func__ << ", line: " << __LINE__ << std::endl;
         resetWallPoses();
       }
       // keep stop if not enough time passed,
       // because it takes time for the trajectory to be reflected
       auto current_path = getCurrentPath();
       keepStoppedWithCurrentPath(current_path);
-
+std::cerr << "func: " << __func__ << ", line: " << __LINE__ << std::endl;
       output.path = std::make_shared<PathWithLaneId>(current_path);
       output.reference_path = getPreviousModuleOutput().reference_path;
     } else if (status_.has_decided_path && isActivated()) {
       // situation : not safe against dynamic objects after approval
       // insert stop point in current path if ego is able to stop with acceleration and jerk
       // constraints
+      std::cerr << "func: " << __func__ << ", line: " << __LINE__ << std::endl;
       setStopPathFromCurrentPath(output);
     }
 
@@ -717,14 +722,14 @@ void GoalPlannerModule::setOutput(BehaviorModuleOutput & output)
   setModifiedGoal(output);
 
   // set hazard and turn signal
-  if (status_.has_decided_path) {
+  if (status_.has_decided_path && output.path) {
     setTurnSignalInfo(output);
   }
 
   // for the next loop setOutput().
   // this is used to determine whether to generate a new stop path or keep the current stop path.
   status_.prev_is_safe = status_.is_safe_static_objects;
-  status_.prev_is_safe_dynamic_objects = status_.is_safe_dynamic_objects;
+  // status_.prev_is_safe_dynamic_objects = status_.is_safe_dynamic_objects;
 }
 
 void GoalPlannerModule::setStopPath(BehaviorModuleOutput & output)
@@ -934,6 +939,8 @@ BehaviorModuleOutput GoalPlannerModule::planWithGoalModification()
     // For evaluations
     printParkingPositionError();
   }
+
+  status_.prev_is_safe_dynamic_objects = isSafePath();
 
   setStopReason(StopReason::GOAL_PLANNER, status_.pull_over_path->getFullPath());
 
@@ -1571,6 +1578,34 @@ void GoalPlannerModule::updateSafetyCheckTargetObjectsData(
   goal_planner_data_.ego_predicted_path = ego_predicted_path;
 }
 
+bool GoalPlannerModule::checkSafetyWithRSS(
+  const PathWithLaneId & planned_path,
+  const std::vector<PoseWithVelocityStamped> & ego_predicted_path,
+  const std::vector<ExtendedPredictedObject> & objects, const double hysteresis_factor) const
+{
+  // Check for collisions with each predicted path of the object
+  const bool is_safe = !std::any_of(objects.begin(), objects.end(), [&](const auto & object) {
+    auto current_debug_data = marker_utils::createObjectDebug(object);
+
+    const auto obj_predicted_paths = utils::path_safety_checker::getPredictedPathFromObj(
+      object, objects_filtering_params_->check_all_predicted_path);
+
+    return std::any_of(
+      obj_predicted_paths.begin(), obj_predicted_paths.end(), [&](const auto & obj_path) {
+        const bool has_collision = !utils::path_safety_checker::checkCollision(
+          planned_path, ego_predicted_path, object, obj_path, planner_data_->parameters,
+          safety_check_params_->rss_params, hysteresis_factor, current_debug_data.second);
+
+        marker_utils::updateCollisionCheckDebugMap(
+          goal_planner_data_.collision_check, current_debug_data, !has_collision);
+
+        return has_collision;
+      });
+  });
+
+  return is_safe;
+}
+
 bool GoalPlannerModule::isSafePath() const
 {
   const auto & pull_over_path = getCurrentPath();
@@ -1619,35 +1654,51 @@ bool GoalPlannerModule::isSafePath() const
   utils::start_goal_planner_common::initializeCollisionCheckDebugMap(
     goal_planner_data_.collision_check);
 
-  bool is_safe_dynamic_objects = true;
-  // Check for collisions with each predicted path of the object
-  for (const auto & object : target_objects_on_lane.on_current_lane) {
-    auto current_debug_data = marker_utils::createObjectDebug(object);
-
-    bool is_safe_dynamic_object = true;
-
-    const auto obj_predicted_paths = utils::path_safety_checker::getPredictedPathFromObj(
-      object, objects_filtering_params_->check_all_predicted_path);
-
-    // If a collision is detected, mark the object as unsafe and break the loop
-    for (const auto & obj_path : obj_predicted_paths) {
-      if (!utils::path_safety_checker::checkCollision(
-            pull_over_path, ego_predicted_path, object, obj_path, planner_data_->parameters,
-            safety_check_params_->rss_params, hysteresis_factor, current_debug_data.second)) {
-        marker_utils::updateCollisionCheckDebugMap(
-          goal_planner_data_.collision_check, current_debug_data, false);
-        is_safe_dynamic_objects = false;
-        is_safe_dynamic_object = false;
-        break;
-      }
+  const bool current_is_safe = std::invoke([&]() {
+    if (parameters_->safety_check_params.method == "RSS") {
+      return checkSafetyWithRSS(
+        pull_over_path, ego_predicted_path, target_objects_on_lane.on_current_lane,
+        hysteresis_factor);
+    } else if (parameters_->safety_check_params.method == "integral_predicted_polygon") {
+      return utils::path_safety_checker::checkSafetyWithIntegralPredictedPolygon(
+        ego_predicted_path, vehicle_info_, target_objects_on_lane.on_current_lane,
+        objects_filtering_params_->check_all_predicted_path,
+        parameters_->safety_check_params.integral_predicted_polygon_params,
+        goal_planner_data_.collision_check);
     }
-    if (is_safe_dynamic_object) {
-      marker_utils::updateCollisionCheckDebugMap(
-        goal_planner_data_.collision_check, current_debug_data, is_safe_dynamic_object);
+    RCLCPP_ERROR(
+      getLogger(), " [pull_over] invalid safety check method: %s",
+      parameters_->safety_check_params.method.c_str());
+    throw std::domain_error("[pull_over] invalid safety check method");
+  });
+
+  /*　　
+   *　　                    ==== is_safe
+   *　　                    ---- current_is_safe
+   *　　  is_safe
+   *　　   |
+   *　　   |                   time
+   *　　 1 +--+    +---+       +---=========   +--+
+   *　　   |  |    |   |       |           |   |  |
+   *　　   |  |    |   |       |           |   |  |
+   *　　   |  |    |   |       |           |   |  |
+   *　　   |  |    |   |       |           |   |  |
+   *　　 0 =========================-------==========-- t
+   */
+  if (current_is_safe) {
+    if (!prev_data_.safety_status.safe_start_time) {
+      prev_data_.safety_status.safe_start_time = clock_->now();
+    } else if (
+      prev_data_.safety_status.safe_start_time &&
+      (clock_->now() - prev_data_.safety_status.safe_start_time.value()).seconds() >
+        parameters_->safety_check_params.keep_unsafe_time) {
+      return true;
     }
+  } else {
+    prev_data_.safety_status.safe_start_time = std::nullopt;
   }
 
-  return is_safe_dynamic_objects;
+  return false;
 }
 
 void GoalPlannerModule::setDebugData()
@@ -1658,6 +1709,9 @@ void GoalPlannerModule::setDebugData()
   using marker_utils::createPathMarkerArray;
   using marker_utils::createPoseMarkerArray;
   using marker_utils::createPredictedPathMarkerArray;
+  using marker_utils::showPolygon;
+  using marker_utils::showPredictedPath;
+  using marker_utils::showSafetyCheckInfo;
   using motion_utils::createStopVirtualWallMarker;
   using tier4_autoware_utils::createDefaultMarker;
   using tier4_autoware_utils::createMarkerColor;
@@ -1730,6 +1784,10 @@ void GoalPlannerModule::setDebugData()
       add(createObjectsMarkerArray(
         goal_planner_data_.filtered_objects, "filtered_objects", 0, 0.0, 0.5, 0.9));
     }
+    add(showPredictedPath(goal_planner_data_.collision_check, "ego_predicted_path"));
+    add(showPolygon(goal_planner_data_.collision_check, "ego_and_target_polygon_relation"));
+    utils::start_goal_planner_common::initializeCollisionCheckDebugMap(
+      goal_planner_data_.collision_check);
   }
 
   // Visualize planner type text

@@ -61,6 +61,7 @@ using freespace_planning_algorithms::RRTStar;
 using freespace_planning_algorithms::RRTStarParam;
 
 using behavior_path_planner::utils::path_safety_checker::EgoPredictedPathParams;
+using behavior_path_planner::utils::path_safety_checker::ExtendedPredictedObject;
 using behavior_path_planner::utils::path_safety_checker::ObjectsFilteringParams;
 using behavior_path_planner::utils::path_safety_checker::PoseWithVelocityStamped;
 using behavior_path_planner::utils::path_safety_checker::SafetyCheckParams;
@@ -94,6 +95,30 @@ struct PullOverStatus
   bool has_decided_velocity{false};
   bool has_requested_approval{false};
   bool is_ready{false};
+};
+
+struct PreviousPullOverData
+{
+  struct SafetyStatus
+  {
+    std::optional<rclcpp::Time> safe_start_time{};
+    bool is_safe{false};
+  };
+
+  void reset()
+  {
+    stop_path = nullptr;
+    stop_path_after_approval = nullptr;
+    found_path = false;
+    safety_status = SafetyStatus{};
+    has_decided_path = false;
+  }
+
+  std::shared_ptr<PathWithLaneId> stop_path{nullptr};
+  std::shared_ptr<PathWithLaneId> stop_path_after_approval{nullptr};
+  bool found_path{false};
+  SafetyStatus safety_status{};
+  bool has_decided_path{false};
 };
 
 struct FreespacePlannerDebugData
@@ -183,6 +208,8 @@ private:
   std::unique_ptr<rclcpp::Time> last_increment_time_;
   std::unique_ptr<rclcpp::Time> last_path_update_time_;
   std::unique_ptr<Pose> last_approved_pose_;
+
+  mutable PreviousPullOverData prev_data_{nullptr};
 
   // approximate distance from the start point to the end point of pull_over.
   // this is used as an assumed value to decelerate, etc., before generating the actual path.
@@ -319,7 +346,12 @@ private:
   void updateSafetyCheckTargetObjectsData(
     const PredictedObjects & filtered_objects, const TargetObjectsOnLane & target_objects_on_lane,
     const std::vector<PoseWithVelocityStamped> & ego_predicted_path) const;
-  bool isSafePath() const;
+  bool isSafePath() const; 
+
+  bool checkSafetyWithRSS(
+    const PathWithLaneId & planned_path,
+    const std::vector<PoseWithVelocityStamped> & ego_predicted_path,
+    const std::vector<ExtendedPredictedObject> & objects, const double hysteresis_factor) const;
 
   // debug
   void setDebugData();
