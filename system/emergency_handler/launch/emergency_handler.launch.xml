@@ -1,5 +1,9 @@
 <launch>
-  <arg name="input_operation_mode_availability" default="/system/operation_mode/availability"/>
+  <arg name="hostname" default="$(env HOSTNAME default)"/>
+  <let name="ecu_name" if="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="main"/>
+  <let name="ecu_name" unless="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="sub"/>
+
+  <arg name="input_operation_mode_availability" default="/supervisor/system/operation_mode/request/$(var ecu_name)"/>
   <!-- To be replaced by ControlCommand -->
   <arg name="input_prev_control_command" default="/control/command/control_cmd"/>
   <arg name="input_odometry" default="/localization/kinematic_state"/>
