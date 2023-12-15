@@ -1,8 +1,13 @@
 <launch>
+  <!-- ECU NAME -->
+  <arg name="hostname" default="$(env HOSTNAME default)"/>
+
   <!-- AD API options -->
   <arg name="launch_deprecated_api" default="false"/>
   <arg name="launch_default_ad_api" default="true"/>
   <arg name="launch_rviz_adaptors" default="true"/>
+  <let name="launch_ad_api_distributor" if="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="true"/>
+  <let name="launch_ad_api_distributor" unless="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="false"/>
 
   <!-- rosbridge options -->
   <arg name="rosbridge_enabled" default="false"/>
@@ -18,6 +23,7 @@
   <group>
     <include file="$(find-pkg-share default_ad_api)/launch/default_ad_api.launch.py" if="$(var launch_default_ad_api)"/>
     <include file="$(find-pkg-share ad_api_adaptors)/launch/rviz_adaptors.launch.xml" if="$(var launch_rviz_adaptors)"/>
+    <include file="$(find-pkg-share ad_api_distributor)/launch/distributor.launch.xml" if="$(var launch_ad_api_distributor)"/>
   </group>
 
   <!-- RTC controller -->
