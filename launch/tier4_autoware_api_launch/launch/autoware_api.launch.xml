@@ -6,8 +6,9 @@
   <arg name="launch_deprecated_api" default="false"/>
   <arg name="launch_default_ad_api" default="true"/>
   <arg name="launch_rviz_adaptors" default="true"/>
-  <let name="launch_ad_api_distributor" if="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="true"/>
-  <let name="launch_ad_api_distributor" unless="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="false"/>
+  <arg name="launch_ad_api_distributor" default="true"/>
+  <arg name="is_main" if="$(eval &quot;'$(var ecu_name)'=='main'&quot;)" default="true"/>
+  <arg name="is_main" unless="$(eval &quot;'$(var ecu_name)'=='main'&quot;)" default="false"/>
 
   <!-- rosbridge options -->
   <arg name="rosbridge_enabled" default="false"/>
@@ -21,7 +22,9 @@
 
   <!-- AD API -->
   <group>
-    <include file="$(find-pkg-share default_ad_api)/launch/default_ad_api.launch.py" if="$(var launch_default_ad_api)"/>
+    <include file="$(find-pkg-share ad_api_distributor)/launch/remapped_api.launch.py" if="$(var launch_default_ad_api)">
+      <arg name="prefix" value="$(var ecu_name)"/>
+    </include>
     <include file="$(find-pkg-share ad_api_adaptors)/launch/rviz_adaptors.launch.xml" if="$(var launch_rviz_adaptors)"/>
     <include file="$(find-pkg-share ad_api_distributor)/launch/distributor.launch.xml" if="$(var launch_ad_api_distributor)"/>
   </group>
