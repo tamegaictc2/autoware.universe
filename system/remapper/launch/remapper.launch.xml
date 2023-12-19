@@ -1,5 +1,4 @@
 <launch>
-  <arg name="ecu_name" default="main"/>
   <arg name="input_operation_mode_availability" default="/system/operation_mode/availability"/>
   <arg name="input_to_can_bus" default="/j6/to_can_bus"/>
   <arg name="input_control_cmd" default="/control/command/control_cmd"/>
@@ -42,7 +41,7 @@
       <remap from="~/input/diagnostics_graph" to="$(var input_diagnostics_graph)"/>
       <remap from="~/input/diagnostics_graph/supervisor" to="$(var input_diagnostics_graph_supervisor)"/>
       <!-- output -->
-      <remap from="~/output/system/operation_mode/availability" to="/$(var ecu_name)$(var input_operation_mode_availability)"/>
+      <remap from="~/output/system/operation_mode/availability" to="/$(var ecu_name)$(var input_operation_mode_availability)/$(var ecu_name)"/>
       <remap from="~/output/j6/to_can_bus" to="/$(var ecu_name)$(var input_to_can_bus)"/>
       <remap from="~/output/control/command/control_cmd" to="/$(var ecu_name)$(var input_control_cmd)"/>
       <remap from="~/output/tf" to="/$(var ecu_name)$(var input_tf)"/>
