@@ -35,6 +35,9 @@ def create_api_node(node_name, class_name, **kwargs):
         create_remapping("/api/routing/clear_route"),
         create_remapping("/api/operation_mode/change_to_stop"),
         create_remapping("/api/operation_mode/change_to_autonomous"),
+        create_remapping("/api/routing/change_route"),
+        create_remapping("/api/routing/change_route_points"),
+        create_remapping("/api/routing/set_route_points")
     ]
     return ComposableNode(
         namespace="default_ad_api/node",
