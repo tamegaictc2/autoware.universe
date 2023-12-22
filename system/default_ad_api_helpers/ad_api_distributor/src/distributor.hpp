@@ -21,6 +21,7 @@
 #include <autoware_adapi_v1_msgs/srv/clear_route.hpp>
 #include <autoware_adapi_v1_msgs/srv/initialize_localization.hpp>
 #include <autoware_adapi_v1_msgs/srv/set_route.hpp>
+#include <autoware_adapi_v1_msgs/srv/set_route_points.hpp>
 
 namespace ad_api_distributor
 {
@@ -37,6 +38,9 @@ private:
   rclcpp::Service<autoware_adapi_v1_msgs::srv::ClearRoute>::SharedPtr srv_clear_route_;
   rclcpp::Service<autoware_adapi_v1_msgs::srv::ChangeOperationMode>::SharedPtr srv_stop_mode_;
   rclcpp::Service<autoware_adapi_v1_msgs::srv::ChangeOperationMode>::SharedPtr srv_autonomous_mode_;
+  rclcpp::Service<autoware_adapi_v1_msgs::srv::SetRoute>::SharedPtr srv_change_route_;
+  rclcpp::Service<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr srv_change_route_points_;
+  rclcpp::Service<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr srv_set_route_points_;
 
   // Client
   rclcpp::Client<autoware_adapi_v1_msgs::srv::InitializeLocalization>::SharedPtr
@@ -53,6 +57,12 @@ private:
     cli_main_autonomous_mode_;
   rclcpp::Client<autoware_adapi_v1_msgs::srv::ChangeOperationMode>::SharedPtr
     cli_sub_autonomous_mode_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoute>::SharedPtr cli_main_change_route_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoute>::SharedPtr cli_sub_change_route_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr cli_main_change_route_points_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr cli_sub_change_route_points_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr cli_main_set_route_points_;
+  rclcpp::Client<autoware_adapi_v1_msgs::srv::SetRoutePoints>::SharedPtr cli_sub_set_route_points_;
 
   // Function
   void on_initialize(
@@ -74,6 +84,18 @@ private:
   void on_change_to_autonomous(
     const autoware_adapi_v1_msgs::srv::ChangeOperationMode::Request::SharedPtr req,
     const autoware_adapi_v1_msgs::srv::ChangeOperationMode::Response::SharedPtr res);
+
+  void on_change_route(
+    const autoware_adapi_v1_msgs::srv::SetRoute::Request::SharedPtr req,
+    const autoware_adapi_v1_msgs::srv::SetRoute::Response::SharedPtr res);
+  
+  void on_change_route_points(
+    const autoware_adapi_v1_msgs::srv::SetRoutePoints::Request::SharedPtr req,
+    const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res);
+
+  void on_set_route_points(
+    const autoware_adapi_v1_msgs::srv::SetRoutePoints::Request::SharedPtr req,
+    const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res);
 };
 
 }  // namespace ad_api_distributor

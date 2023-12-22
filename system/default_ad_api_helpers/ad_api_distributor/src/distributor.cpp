@@ -35,7 +35,13 @@ Distributor::Distributor() : Node("distributor")
     "/api/operation_mode/change_to_stop", std::bind(&Distributor::on_change_to_stop, this, _1, _2));
   srv_autonomous_mode_ = create_service<autoware_adapi_v1_msgs::srv::ChangeOperationMode>(
     "/api/operation_mode/change_to_autonomous",
-    std::bind(&Distributor::on_change_to_autonomous, this, _1, _2));
+    std::bind(&Distributor::on_change_to_autonomous, this, _1, _2));  
+  srv_change_route_ = create_service<autoware_adapi_v1_msgs::srv::SetRoute>(
+    "/api/routing/change_route", std::bind(&Distributor::on_change_route, this, _1, _2));
+  srv_change_route_points_ = create_service<autoware_adapi_v1_msgs::srv::SetRoutePoints>(
+    "/api/routing/change_route_points", std::bind(&Distributor::on_change_route_points, this, _1, _2));
+  srv_set_route_points_ = create_service<autoware_adapi_v1_msgs::srv::SetRoutePoints>(
+    "/api/routing/set_route_points", std::bind(&Distributor::on_set_route_points, this, _1, _2));
 
   // Client
   cli_main_initialize_ = create_client<autoware_adapi_v1_msgs::srv::InitializeLocalization>(
@@ -43,21 +49,33 @@ Distributor::Distributor() : Node("distributor")
   cli_sub_initialize_ = create_client<autoware_adapi_v1_msgs::srv::InitializeLocalization>(
     "/sub/api/localization/initialize");
   cli_main_set_route_ =
-    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/main/api/localization/initialize");
+    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/main/api/routing/set_route");
   cli_sub_set_route_ =
-    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/sub/api/localization/initialize");
+    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/sub/api/routing/set_route");
   cli_main_clear_route_ =
-    create_client<autoware_adapi_v1_msgs::srv::ClearRoute>("/main/api/localization/initialize");
+    create_client<autoware_adapi_v1_msgs::srv::ClearRoute>("/main/api/routing/clear_route");
   cli_sub_clear_route_ =
-    create_client<autoware_adapi_v1_msgs::srv::ClearRoute>("/sub/api/localization/initialize");
+    create_client<autoware_adapi_v1_msgs::srv::ClearRoute>("/sub/api/routing/clear_route");
   cli_main_stop_mode_ = create_client<autoware_adapi_v1_msgs::srv::ChangeOperationMode>(
-    "/main/api/localization/initialize");
+    "/main/api/operation_mode/change_to_stop");
   cli_sub_stop_mode_ = create_client<autoware_adapi_v1_msgs::srv::ChangeOperationMode>(
-    "/sub/api/localization/initialize");
+    "/sub/api/operation_mode/change_to_stop");
   cli_main_autonomous_mode_ = create_client<autoware_adapi_v1_msgs::srv::ChangeOperationMode>(
-    "/main/api/localization/initialize");
+    "/main/api/operation_mode/change_to_autonomous");
   cli_sub_autonomous_mode_ = create_client<autoware_adapi_v1_msgs::srv::ChangeOperationMode>(
-    "/sub/api/localization/initialize");
+    "/sub/api/operation_mode/change_to_autonomous");
+  cli_main_change_route_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/main/api/routing/change_route");
+  cli_sub_change_route_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoute>("/sub/api/routing/change_route");
+  cli_main_change_route_points_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoutePoints>("/main/api/routing/change_route_points");
+  cli_sub_change_route_points_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoutePoints>("/sub/api/routing/change_route_points");
+  cli_main_set_route_points_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoutePoints>("/main/api/routing/set_route_points");
+  cli_sub_set_route_points_ =
+    create_client<autoware_adapi_v1_msgs::srv::SetRoutePoints>("/sub/api/routing/set_route_points");
 }
 
 void Distributor::on_initialize(
@@ -124,6 +142,45 @@ void Distributor::on_change_to_autonomous(
   }
   cli_main_autonomous_mode_->async_send_request(req);
   cli_sub_autonomous_mode_->async_send_request(req);
+  res->status.success = true;
+}
+
+void Distributor::on_change_route(
+  const autoware_adapi_v1_msgs::srv::SetRoute::Request::SharedPtr req,
+  const autoware_adapi_v1_msgs::srv::SetRoute::Response::SharedPtr res)
+{
+  if (!cli_main_change_route_->service_is_ready() || !cli_sub_change_route_->service_is_ready()) {
+    res->status.success = false;
+    return;
+  }
+  cli_main_change_route_->async_send_request(req);
+  cli_sub_change_route_->async_send_request(req);
+  res->status.success = true;
+}
+
+void Distributor::on_change_route_points(
+  const autoware_adapi_v1_msgs::srv::SetRoutePoints::Request::SharedPtr req,
+  const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res)
+{
+  if (!cli_main_change_route_points_->service_is_ready() || !cli_sub_change_route_points_->service_is_ready()) {
+    res->status.success = false;
+    return;
+  }
+  cli_main_change_route_points_->async_send_request(req);
+  cli_sub_change_route_points_->async_send_request(req);
+  res->status.success = true;
+}
+
+void Distributor::on_set_route_points(
+  const autoware_adapi_v1_msgs::srv::SetRoutePoints::Request::SharedPtr req,
+  const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res)
+{
+  if (!cli_main_set_route_points_->service_is_ready() || !cli_sub_set_route_points_->service_is_ready()) {
+    res->status.success = false;
+    return;
+  }
+  cli_main_set_route_points_->async_send_request(req);
+  cli_sub_set_route_points_->async_send_request(req);
   res->status.success = true;
 }
 

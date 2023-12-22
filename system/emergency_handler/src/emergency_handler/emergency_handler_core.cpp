@@ -58,6 +58,9 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
   sub_mrm_emergency_stop_status_ = create_subscription<tier4_system_msgs::msg::MrmBehaviorStatus>(
     "~/input/mrm/emergency_stop/status", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onMrmEmergencyStopStatus, this, _1));
+  sub_operation_mode_state_ = create_subscription<autoware_adapi_v1_msgs::msg::OperationModeState>(
+    "~/input/api/operation_mode/state", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onOperationModeState, this, _1));
 
   // Publisher
   pub_control_command_ = create_publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>(
@@ -94,6 +97,7 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
   mrm_comfortable_stop_status_ =
     std::make_shared<const tier4_system_msgs::msg::MrmBehaviorStatus>();
   mrm_emergency_stop_status_ = std::make_shared<const tier4_system_msgs::msg::MrmBehaviorStatus>();
+  operation_mode_state_ = std::make_shared<const autoware_adapi_v1_msgs::msg::OperationModeState>();
   mrm_state_.stamp = this->now();
   mrm_state_.state = autoware_adapi_v1_msgs::msg::MrmState::NORMAL;
   mrm_state_.behavior = autoware_adapi_v1_msgs::msg::MrmState::NONE;
@@ -168,6 +172,12 @@ void EmergencyHandler::onMrmEmergencyStopStatus(
   const tier4_system_msgs::msg::MrmBehaviorStatus::ConstSharedPtr msg)
 {
   mrm_emergency_stop_status_ = msg;
+}
+
+void EmergencyHandler::onOperationModeState(
+  const autoware_adapi_v1_msgs::msg::OperationModeState::ConstSharedPtr msg)
+{
+  operation_mode_state_ = msg;
 }
 
 autoware_auto_vehicle_msgs::msg::HazardLightsCommand EmergencyHandler::createHazardCmdMsg()
@@ -481,6 +491,12 @@ void EmergencyHandler::updateMrmState()
       }
     } else if (mrm_state_.state == MrmState::MRM_OPERATING) {
       // TODO(Kenji Miyake): Check MRC is accomplished
+      if (mrm_state_.behavior == MrmState::PULL_OVER) {
+        if (isStopped() && isArrivedAtGoal()) {
+          transitionTo(MrmState::MRM_SUCCEEDED);
+          return;
+        }
+      }
       if (isStopped()) {
         transitionTo(MrmState::MRM_SUCCEEDED);
         return;
@@ -501,41 +517,20 @@ autoware_adapi_v1_msgs::msg::MrmState::_behavior_type EmergencyHandler::getCurre
   using autoware_adapi_v1_msgs::msg::MrmState;
   using tier4_system_msgs::msg::OperationModeAvailability;
 
-  // State machine
-  if (mrm_state_.behavior == MrmState::NONE) {
-    if (operation_mode_availability_->pull_over) {
-      if (param_.use_pull_over) {
-        return MrmState::PULL_OVER;
-      }
-    }
-    if (operation_mode_availability_->comfortable_stop) {
-      if (param_.use_comfortable_stop) {
-        return MrmState::COMFORTABLE_STOP;
-      }
-    }
-    if (!operation_mode_availability_->emergency_stop) {
-      RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
-    }
-    return MrmState::EMERGENCY_STOP;
-  }
-  if (mrm_state_.behavior == MrmState::PULL_OVER) {
-    if (!operation_mode_availability_->pull_over) {
-      if (!operation_mode_availability_->emergency_stop) {
-        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
-      }
-      return MrmState::EMERGENCY_STOP;
+  if (operation_mode_availability_->pull_over) {
+    if (param_.use_pull_over) {
+      return MrmState::PULL_OVER;
     }
   }
-  if (mrm_state_.behavior == MrmState::COMFORTABLE_STOP) {
-    if (!operation_mode_availability_->comfortable_stop) {
-      if (!operation_mode_availability_->emergency_stop) {
-        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
-      }
-      return MrmState::EMERGENCY_STOP;
+  if (operation_mode_availability_->comfortable_stop) {
+    if (param_.use_comfortable_stop) {
+      return MrmState::COMFORTABLE_STOP;
     }
   }
-
-  return mrm_state_.behavior;
+  if (!operation_mode_availability_->emergency_stop) {
+    RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+  }
+  return MrmState::EMERGENCY_STOP;
 }
 
 bool EmergencyHandler::isStopped()
@@ -551,4 +546,15 @@ bool EmergencyHandler::isStopped()
 bool EmergencyHandler::isEmergency() const
 {
   return !operation_mode_availability_->autonomous | is_emergency_holding_;
+}
+
+bool EmergencyHandler::isArrivedAtGoal()
+{
+  using autoware_adapi_v1_msgs::msg::OperationModeState;
+
+  if (operation_mode_state_->mode == OperationModeState::STOP) {
+    return true;
+  }
+
+  return false;
 }
