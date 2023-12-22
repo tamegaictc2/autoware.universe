@@ -24,7 +24,7 @@ Remapper::Remapper() : Node("remapper")
       "~/input/system/operation_mode/availability", rclcpp::QoS{1},
       std::bind(&Remapper::onOperationModeAvailability, this, _1));
   sub_to_can_bus_ = create_subscription<can_msgs::msg::Frame>(
-    "~/input/j6/to_can_bus", rclcpp::QoS{1}, std::bind(&Remapper::onToCanBus, this, _1));
+    "~/input/j6/to_can_bus", rclcpp::QoS{500}, std::bind(&Remapper::onToCanBus, this, _1));
   sub_control_cmd_ = create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
     "~/input/control/command/control_cmd", rclcpp::QoS{1},
     std::bind(&Remapper::onControlCmd, this, _1));
