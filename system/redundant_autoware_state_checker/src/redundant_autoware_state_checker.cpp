@@ -304,6 +304,8 @@ bool RedundantAutowareStateChecker::is_equal_route()
   if (!has_subscribed_sub_route_) return true;
 
   // Currently, following members are used to check the equality
+  if (main_route_->data.size() == 0) return true;
+  if (sub_route_->data.size() == 0) return true;
   if (!is_close_to_each_other(main_route_->data[0].start, sub_route_->data[0].start)) return false;
   if (!is_close_to_each_other(main_route_->data[0].goal, sub_route_->data[0].goal)) return false;
 
