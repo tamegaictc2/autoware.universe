@@ -55,6 +55,7 @@ struct Param
   bool use_parking_after_stopped;
   bool use_pull_over;
   bool use_comfortable_stop;
+  bool is_redundant;
   HazardLampPolicy turning_hazard_on{};
 };
 

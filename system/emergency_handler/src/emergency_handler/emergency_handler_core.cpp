@@ -32,6 +32,7 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
   param_.use_pull_over = declare_parameter<bool>("use_pull_over", false);
   param_.use_comfortable_stop = declare_parameter<bool>("use_comfortable_stop", false);
   param_.turning_hazard_on.emergency = declare_parameter<bool>("turning_hazard_on.emergency", true);
+  param_.is_redundant = declare_parameter<bool>("is_redundant", true);
 
   using std::placeholders::_1;
 
@@ -517,20 +518,85 @@ autoware_adapi_v1_msgs::msg::MrmState::_behavior_type EmergencyHandler::getCurre
   using autoware_adapi_v1_msgs::msg::MrmState;
   using tier4_system_msgs::msg::OperationModeAvailability;
 
-  if (operation_mode_availability_->pull_over) {
-    if (param_.use_pull_over) {
-      return MrmState::PULL_OVER;
+  if (param_.is_redundant){
+    if (operation_mode_availability_->pull_over) {
+      if (param_.use_pull_over) {
+        return MrmState::PULL_OVER;
+      }
     }
-  }
-  if (operation_mode_availability_->comfortable_stop) {
-    if (param_.use_comfortable_stop) {
-      return MrmState::COMFORTABLE_STOP;
+    if (operation_mode_availability_->comfortable_stop) {
+      if (param_.use_comfortable_stop) {
+        return MrmState::COMFORTABLE_STOP;
+      }
     }
+    if (!operation_mode_availability_->emergency_stop) {
+      RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+    }
+    return MrmState::EMERGENCY_STOP;
+  } else {
+      // State machine
+    if (mrm_state_.behavior == MrmState::NONE) {
+      if (operation_mode_availability_->pull_over) {
+        if (param_.use_pull_over) {
+          return MrmState::PULL_OVER;
+        }
+      }
+      if (operation_mode_availability_->comfortable_stop) {
+        if (param_.use_comfortable_stop) {
+          return MrmState::COMFORTABLE_STOP;
+        }
+      }
+      if (!operation_mode_availability_->emergency_stop) {
+        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+      }
+      return MrmState::EMERGENCY_STOP;
+    }
+    if (mrm_state_.behavior == MrmState::PULL_OVER) {
+      if (operation_mode_availability_->pull_over) {
+        if (param_.use_pull_over) {
+          return MrmState::PULL_OVER;
+        }
+      }
+      if (operation_mode_availability_->comfortable_stop) {
+        if (param_.use_comfortable_stop) {
+          return MrmState::COMFORTABLE_STOP;
+        }
+      }
+      if (!operation_mode_availability_->emergency_stop) {
+        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+      }
+      return MrmState::EMERGENCY_STOP;
+    }
+    if (mrm_state_.behavior == MrmState::COMFORTABLE_STOP) {
+      if (isStopped() && operation_mode_availability_->pull_over) {
+        if (param_.use_pull_over) {
+          return MrmState::PULL_OVER;
+        }
+      }
+      if (operation_mode_availability_->comfortable_stop) {
+        if (param_.use_comfortable_stop) {
+          return MrmState::COMFORTABLE_STOP;
+        }
+      }
+      if (!operation_mode_availability_->emergency_stop) {
+        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+      }
+      return MrmState::EMERGENCY_STOP;
+    }
+    if (mrm_state_.behavior == MrmState::EMERGENCY_STOP) {
+      if (isStopped() && operation_mode_availability_->pull_over) {
+        if (param_.use_pull_over) {
+          return MrmState::PULL_OVER;
+        }
+      }
+      if (!operation_mode_availability_->emergency_stop) {
+        RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
+      }
+      return MrmState::EMERGENCY_STOP;
+    }
+
+    return mrm_state_.behavior;
   }
-  if (!operation_mode_availability_->emergency_stop) {
-    RCLCPP_WARN(this->get_logger(), "no mrm operation available: operate emergency_stop");
-  }
-  return MrmState::EMERGENCY_STOP;
 }
 
 bool EmergencyHandler::isStopped()
