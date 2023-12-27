@@ -11,6 +11,7 @@
     use_parking_after_stopped: false
     use_pull_over: false
     use_comfortable_stop: false
+    is_redundant: true
 
     # setting whether to turn hazard lamp on for each situation
     turning_hazard_on:
