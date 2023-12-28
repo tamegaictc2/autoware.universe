@@ -2,7 +2,7 @@
   <arg name="hostname" default="$(env HOSTNAME default)"/>
   <let name="ecu_name" if="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="main"/>
   <let name="ecu_name" unless="$(eval &quot;'$(var hostname)'=='autoware'&quot;)" value="sub"/>
-  <let name="is_redundant" value="false"/>
+  <let name="is_redundant" value="true"/>
 
   <arg name="input_operation_mode_availability" default="/supervisor/system/operation_mode/request/$(var ecu_name)" if="$(var is_redundant)"/>
   <arg name="input_operation_mode_availability" default="/system/operation_mode/availability" unless="$(var is_redundant)"/>
