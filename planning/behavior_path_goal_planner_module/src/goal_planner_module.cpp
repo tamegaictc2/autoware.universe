@@ -859,22 +859,22 @@ void GoalPlannerModule::setTurnSignalInfo(BehaviorModuleOutput & output) const
     planner_data_->parameters.ego_nearest_yaw_threshold);
 }
 
-void GoalPlannerModule::updateSteeringFactor(
-  const std::array<Pose, 2> & pose, const std::array<double, 2> distance, const uint16_t type)
-{
-  const uint16_t steering_factor_direction = std::invoke([this]() {
-    const auto turn_signal = calcTurnSignalInfo();
-    if (turn_signal.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
-      return SteeringFactor::LEFT;
-    } else if (turn_signal.turn_signal.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
-      return SteeringFactor::RIGHT;
-    }
-    return SteeringFactor::STRAIGHT;
-  });
+// void GoalPlannerModule::updateSteeringFactor(
+//   const std::array<Pose, 2> & pose, const std::array<double, 2> distance, const uint16_t type)
+// {
+//   const uint16_t steering_factor_direction = std::invoke([this]() {
+//     const auto turn_signal = calcTurnSignalInfo();
+//     if (turn_signal.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
+//       return SteeringFactor::LEFT;
+//     } else if (turn_signal.turn_signal.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
+//       return SteeringFactor::RIGHT;
+//     }
+//     return SteeringFactor::STRAIGHT;
+//   });
 
-  steering_factor_interface_ptr_->updateSteeringFactor(
-    pose, distance, PlanningBehavior::GOAL_PLANNER, steering_factor_direction, type, "");
-}
+//   steering_factor_interface_ptr_->updateSteeringFactor(
+//     pose, distance, PlanningBehavior::GOAL_PLANNER, steering_factor_direction, type, "");
+// }
 
 bool GoalPlannerModule::hasDecidedPath() const
 {
@@ -1041,11 +1041,11 @@ void GoalPlannerModule::postProcess()
     updateRTCStatus(distance_to_path_change.first, distance_to_path_change.second);
   }
 
-  updateSteeringFactor(
-    {thread_safe_data_.get_pull_over_path()->start_pose,
-     thread_safe_data_.get_modified_goal_pose()->goal_pose},
-    {distance_to_path_change.first, distance_to_path_change.second},
-    has_decided_path ? SteeringFactor::TURNING : SteeringFactor::APPROACHING);
+  // updateSteeringFactor(
+  //   {thread_safe_data_.get_pull_over_path()->start_pose,
+  //    thread_safe_data_.get_modified_goal_pose()->goal_pose},
+  //   {distance_to_path_change.first, distance_to_path_change.second},
+  //   has_decided_path ? SteeringFactor::TURNING : SteeringFactor::APPROACHING);
 
   setStopReason(StopReason::GOAL_PLANNER, thread_safe_data_.get_pull_over_path()->getFullPath());
 }
@@ -1692,13 +1692,13 @@ bool GoalPlannerModule::isCrossingPossible(
       if (route_handler->getLeftShoulderLanelet(lane, &neighboring_lane)) {
         return neighboring_lane;
       } else {
-        return route_handler->getLeftLanelet(lane);
+        return utils::toStdOptional(route_handler->getLeftLanelet(lane));
       }
     } else {
       if (route_handler->getRightShoulderLanelet(lane, &neighboring_lane)) {
         return neighboring_lane;
       } else {
-        return route_handler->getRightLanelet(lane);
+        return utils::toStdOptional(route_handler->getRightLanelet(lane));
       }
     }
   };

@@ -477,8 +477,8 @@ private:
   void onFreespaceParkingTimer();
 
   // steering factor
-  void updateSteeringFactor(
-    const std::array<Pose, 2> & pose, const std::array<double, 2> distance, const uint16_t type);
+  // void updateSteeringFactor(
+  //   const std::array<Pose, 2> & pose, const std::array<double, 2> distance, const uint16_t type);
 
   // rtc
   std::pair<double, double> calcDistanceToPathChange() const;
