@@ -410,14 +410,15 @@ BehaviorModuleOutput StartPlannerModule::plan()
 
   setDrivableAreaInfo(output);
 
-  const uint16_t steering_factor_direction = std::invoke([&output]() {
-    if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
-      return SteeringFactor::LEFT;
-    } else if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
-      return SteeringFactor::RIGHT;
-    }
-    return SteeringFactor::STRAIGHT;
-  });
+  // const uint16_t steering_factor_direction = std::invoke([&output]() {
+  //   if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
+  //     return SteeringFactor::LEFT;
+  //   } else if (output.turn_signal_info.turn_signal.command ==
+  //   TurnIndicatorsCommand::ENABLE_RIGHT) {
+  //     return SteeringFactor::RIGHT;
+  //   }
+  //   return SteeringFactor::STRAIGHT;
+  // });
 
   if (status_.driving_forward) {
     const double start_distance = motion_utils::calcSignedArcLength(
@@ -427,18 +428,18 @@ BehaviorModuleOutput StartPlannerModule::plan()
       path.points, planner_data_->self_odometry->pose.pose.position,
       status_.pull_out_path.end_pose.position);
     updateRTCStatus(start_distance, finish_distance);
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose},
-      {start_distance, finish_distance}, PlanningBehavior::START_PLANNER, steering_factor_direction,
-      SteeringFactor::TURNING, "");
+    // steering_factor_interface_ptr_->updateSteeringFactor(
+    //   {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose},
+    //   {start_distance, finish_distance}, PlanningBehavior::START_PLANNER,
+    //   steering_factor_direction, SteeringFactor::TURNING, "");
   } else {
     const double distance = motion_utils::calcSignedArcLength(
       path.points, planner_data_->self_odometry->pose.pose.position,
       status_.pull_out_path.start_pose.position);
     updateRTCStatus(0.0, distance);
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose}, {0.0, distance},
-      PlanningBehavior::START_PLANNER, steering_factor_direction, SteeringFactor::TURNING, "");
+    // steering_factor_interface_ptr_->updateSteeringFactor(
+    //   {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose}, {0.0, distance},
+    //   PlanningBehavior::START_PLANNER, steering_factor_direction, SteeringFactor::TURNING, "");
   }
 
   setDebugData();
@@ -520,14 +521,15 @@ BehaviorModuleOutput StartPlannerModule::planWaitingApproval()
 
   setDrivableAreaInfo(output);
 
-  const uint16_t steering_factor_direction = std::invoke([&output]() {
-    if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
-      return SteeringFactor::LEFT;
-    } else if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
-      return SteeringFactor::RIGHT;
-    }
-    return SteeringFactor::STRAIGHT;
-  });
+  // const uint16_t steering_factor_direction = std::invoke([&output]() {
+  //   if (output.turn_signal_info.turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
+  //     return SteeringFactor::LEFT;
+  //   } else if (output.turn_signal_info.turn_signal.command ==
+  //   TurnIndicatorsCommand::ENABLE_RIGHT) {
+  //     return SteeringFactor::RIGHT;
+  //   }
+  //   return SteeringFactor::STRAIGHT;
+  // });
 
   if (status_.driving_forward) {
     const double start_distance = motion_utils::calcSignedArcLength(
@@ -537,18 +539,19 @@ BehaviorModuleOutput StartPlannerModule::planWaitingApproval()
       stop_path.points, planner_data_->self_odometry->pose.pose.position,
       status_.pull_out_path.end_pose.position);
     updateRTCStatus(start_distance, finish_distance);
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose},
-      {start_distance, finish_distance}, PlanningBehavior::START_PLANNER, steering_factor_direction,
-      SteeringFactor::APPROACHING, "");
+    // steering_factor_interface_ptr_->updateSteeringFactor(
+    //   {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose},
+    //   {start_distance, finish_distance}, PlanningBehavior::START_PLANNER,
+    //   steering_factor_direction, SteeringFactor::APPROACHING, "");
   } else {
     const double distance = motion_utils::calcSignedArcLength(
       stop_path.points, planner_data_->self_odometry->pose.pose.position,
       status_.pull_out_path.start_pose.position);
     updateRTCStatus(0.0, distance);
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose}, {0.0, distance},
-      PlanningBehavior::START_PLANNER, steering_factor_direction, SteeringFactor::APPROACHING, "");
+    // steering_factor_interface_ptr_->updateSteeringFactor(
+    //   {status_.pull_out_path.start_pose, status_.pull_out_path.end_pose}, {0.0, distance},
+    //   PlanningBehavior::START_PLANNER, steering_factor_direction, SteeringFactor::APPROACHING,
+    //   "");
   }
 
   setDebugData();
