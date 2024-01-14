@@ -787,10 +787,11 @@ std::optional<lanelet::ConstLanelet> getLaneChangeTargetLane(
   if (
     type == LaneChangeModuleType::NORMAL ||
     type == LaneChangeModuleType::AVOIDANCE_BY_LANE_CHANGE) {
-    return route_handler.getLaneChangeTarget(current_lanes, direction);
+    return utils::toStdOptional(route_handler.getLaneChangeTarget(current_lanes, direction));
   }
 
-  return route_handler.getLaneChangeTargetExceptPreferredLane(current_lanes, direction);
+  return utils::toStdOptional(
+    route_handler.getLaneChangeTargetExceptPreferredLane(current_lanes, direction));
 }
 
 std::vector<PoseWithVelocityStamped> convertToPredictedPath(

@@ -130,10 +130,10 @@ protected:
 
   void setObjectDebugVisualization() const;
 
-  void updateSteeringFactorPtr(const BehaviorModuleOutput & output);
+  // void updateSteeringFactorPtr(const BehaviorModuleOutput & output);
 
-  void updateSteeringFactorPtr(
-    const CandidateOutput & output, const LaneChangePath & selected_path) const;
+  // void updateSteeringFactorPtr(
+  //   const CandidateOutput & output, const LaneChangePath & selected_path) const;
 
   mutable MarkerArray virtual_wall_marker_;
 

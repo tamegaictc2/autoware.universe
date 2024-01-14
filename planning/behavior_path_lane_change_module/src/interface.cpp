@@ -43,7 +43,7 @@ LaneChangeInterface::LaneChangeInterface(
   module_type_{std::move(module_type)},
   prev_approved_path_{std::make_unique<PathWithLaneId>()}
 {
-  steering_factor_interface_ptr_ = std::make_unique<SteeringFactorInterface>(&node, name);
+  // steering_factor_interface_ptr_ = std::make_unique<SteeringFactorInterface>(&node, name);
   logger_ = utils::lane_change::getLogger(module_type_->getModuleTypeStr());
 }
 
@@ -111,7 +111,7 @@ BehaviorModuleOutput LaneChangeInterface::plan()
     setObjectsOfInterestData(data.current_obj_pose, data.obj_shape, color);
   }
 
-  updateSteeringFactorPtr(output);
+  // updateSteeringFactorPtr(output);
   clearWaitingApproval();
 
   return output;
@@ -172,7 +172,7 @@ CandidateOutput LaneChangeInterface::planCandidate() const
 
   CandidateOutput output = assignToCandidate(selected_path, module_type_->getEgoPosition());
 
-  updateSteeringFactorPtr(output, selected_path);
+  // updateSteeringFactorPtr(output, selected_path);
   return output;
 }
 
@@ -380,46 +380,47 @@ MarkerArray LaneChangeInterface::getModuleVirtualWall()
   return marker;
 }
 
-void LaneChangeInterface::updateSteeringFactorPtr(const BehaviorModuleOutput & output)
-{
-  const auto steering_factor_direction = std::invoke([&]() {
-    if (module_type_->getDirection() == Direction::LEFT) {
-      return SteeringFactor::LEFT;
-    }
-    if (module_type_->getDirection() == Direction::RIGHT) {
-      return SteeringFactor::RIGHT;
-    }
-    return SteeringFactor::UNKNOWN;
-  });
+// void LaneChangeInterface::updateSteeringFactorPtr(const BehaviorModuleOutput & output)
+// {
+//   const auto steering_factor_direction = std::invoke([&]() {
+//     if (module_type_->getDirection() == Direction::LEFT) {
+//       return SteeringFactor::LEFT;
+//     }
+//     if (module_type_->getDirection() == Direction::RIGHT) {
+//       return SteeringFactor::RIGHT;
+//     }
+//     return SteeringFactor::UNKNOWN;
+//   });
 
-  const auto current_position = module_type_->getEgoPosition();
-  const auto status = module_type_->getLaneChangeStatus();
-  const auto start_distance = motion_utils::calcSignedArcLength(
-    output.path.points, current_position, status.lane_change_path.info.shift_line.start.position);
-  const auto finish_distance = motion_utils::calcSignedArcLength(
-    output.path.points, current_position, status.lane_change_path.info.shift_line.end.position);
+//   const auto current_position = module_type_->getEgoPosition();
+//   const auto status = module_type_->getLaneChangeStatus();
+//   const auto start_distance = motion_utils::calcSignedArcLength(
+//     output.path.points, current_position,
+//     status.lane_change_path.info.shift_line.start.position);
+//   const auto finish_distance = motion_utils::calcSignedArcLength(
+//     output.path.points, current_position, status.lane_change_path.info.shift_line.end.position);
 
-  steering_factor_interface_ptr_->updateSteeringFactor(
-    {status.lane_change_path.info.shift_line.start, status.lane_change_path.info.shift_line.end},
-    {start_distance, finish_distance}, PlanningBehavior::LANE_CHANGE, steering_factor_direction,
-    SteeringFactor::TURNING, "");
-}
+//   steering_factor_interface_ptr_->updateSteeringFactor(
+//     {status.lane_change_path.info.shift_line.start, status.lane_change_path.info.shift_line.end},
+//     {start_distance, finish_distance}, PlanningBehavior::LANE_CHANGE, steering_factor_direction,
+//     SteeringFactor::TURNING, "");
+// }
 
-void LaneChangeInterface::updateSteeringFactorPtr(
-  const CandidateOutput & output, const LaneChangePath & selected_path) const
-{
-  const uint16_t steering_factor_direction = std::invoke([&output]() {
-    if (output.lateral_shift > 0.0) {
-      return SteeringFactor::LEFT;
-    }
-    return SteeringFactor::RIGHT;
-  });
+// void LaneChangeInterface::updateSteeringFactorPtr(
+//   const CandidateOutput & output, const LaneChangePath & selected_path) const
+// {
+//   const uint16_t steering_factor_direction = std::invoke([&output]() {
+//     if (output.lateral_shift > 0.0) {
+//       return SteeringFactor::LEFT;
+//     }
+//     return SteeringFactor::RIGHT;
+//   });
 
-  steering_factor_interface_ptr_->updateSteeringFactor(
-    {selected_path.info.shift_line.start, selected_path.info.shift_line.end},
-    {output.start_distance_to_path_change, output.finish_distance_to_path_change},
-    PlanningBehavior::LANE_CHANGE, steering_factor_direction, SteeringFactor::APPROACHING, "");
-}
+//   steering_factor_interface_ptr_->updateSteeringFactor(
+//     {selected_path.info.shift_line.start, selected_path.info.shift_line.end},
+//     {output.start_distance_to_path_change, output.finish_distance_to_path_change},
+//     PlanningBehavior::LANE_CHANGE, steering_factor_direction, SteeringFactor::APPROACHING, "");
+// }
 
 TurnSignalInfo LaneChangeInterface::getCurrentTurnSignalInfo(
   const PathWithLaneId & path, const TurnSignalInfo & original_turn_signal_info)
