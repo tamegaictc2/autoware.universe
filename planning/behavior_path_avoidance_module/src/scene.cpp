@@ -627,8 +627,8 @@ void AvoidanceModule::fillDebugData(
                         additional_buffer_longitudinal;
   const auto total_avoid_distance = variable + constant;
 
-  dead_pose_ = calcLongitudinalOffsetPose(
-    data.reference_path.points, getEgoPosition(), o_front.longitudinal - total_avoid_distance);
+  dead_pose_ = utils::toStdOptional(calcLongitudinalOffsetPose(
+    data.reference_path.points, getEgoPosition(), o_front.longitudinal - total_avoid_distance));
 
   if (!dead_pose_) {
     dead_pose_ = getPose(data.reference_path.points.front());
@@ -982,13 +982,13 @@ CandidateOutput AvoidanceModule::planCandidate() const
   output.start_distance_to_path_change = sl_front.start_longitudinal;
   output.finish_distance_to_path_change = sl_back.end_longitudinal;
 
-  const uint16_t steering_factor_direction = std::invoke([&output]() {
-    return output.lateral_shift > 0.0 ? SteeringFactor::LEFT : SteeringFactor::RIGHT;
-  });
-  steering_factor_interface_ptr_->updateSteeringFactor(
-    {sl_front.start, sl_back.end},
-    {output.start_distance_to_path_change, output.finish_distance_to_path_change},
-    PlanningBehavior::AVOIDANCE, steering_factor_direction, SteeringFactor::APPROACHING, "");
+  // const uint16_t steering_factor_direction = std::invoke([&output]() {
+  //   return output.lateral_shift > 0.0 ? SteeringFactor::LEFT : SteeringFactor::RIGHT;
+  // });
+  // steering_factor_interface_ptr_->updateSteeringFactor(
+  //   {sl_front.start, sl_back.end},
+  //   {output.start_distance_to_path_change, output.finish_distance_to_path_change},
+  //   PlanningBehavior::AVOIDANCE, steering_factor_direction, SteeringFactor::APPROACHING, "");
 
   output.path_candidate = shifted_path.path;
   return output;
@@ -1628,8 +1628,8 @@ void AvoidanceModule::insertPrepareVelocity(ShiftedPath & shifted_path) const
     shifted_path.path.points.at(i).point.longitudinal_velocity_mps = std::min(v_original, v_insert);
   }
 
-  slow_pose_ = motion_utils::calcLongitudinalOffsetPose(
-    shifted_path.path.points, start_idx, distance_to_object);
+  slow_pose_ = utils::toStdOptional(motion_utils::calcLongitudinalOffsetPose(
+    shifted_path.path.points, start_idx, distance_to_object));
 }
 
 std::shared_ptr<AvoidanceDebugMsgArray> AvoidanceModule::get_debug_msg_array() const
