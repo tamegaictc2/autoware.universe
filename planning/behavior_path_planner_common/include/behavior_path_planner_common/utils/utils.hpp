@@ -100,6 +100,16 @@ FrenetPoint convertToFrenetPoint(
   return frenet_point;
 }
 
+template <class T>
+std::optional<T> toStdOptional(const boost::optional<T> & data)
+{
+  if (!data) {
+    return std::nullopt;
+  }
+
+  return data.get();
+}
+
 std::vector<lanelet::Id> getIds(const lanelet::ConstLanelets & lanelets);
 
 // distance (arclength) calculation

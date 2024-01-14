@@ -110,7 +110,7 @@ private:
 
   std::shared_ptr<PlannerManager> planner_manager_;
 
-  std::unique_ptr<SteeringFactorInterface> steering_factor_interface_ptr_;
+  // std::unique_ptr<SteeringFactorInterface> steering_factor_interface_ptr_;
   Scenario::SharedPtr current_scenario_{nullptr};
 
   HADMapBin::ConstSharedPtr map_ptr_{nullptr};
@@ -177,8 +177,9 @@ private:
   /**
    * @brief publish steering factor from intersection
    */
-  void publish_steering_factor(
-    const std::shared_ptr<PlannerData> & planner_data, const TurnIndicatorsCommand & turn_signal);
+  // void publish_steering_factor(
+  //   const std::shared_ptr<PlannerData> & planner_data, const TurnIndicatorsCommand &
+  //   turn_signal);
 
   /**
    * @brief publish turn signal debug info

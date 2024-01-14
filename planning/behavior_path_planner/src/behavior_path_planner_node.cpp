@@ -17,7 +17,7 @@
 #include "behavior_path_planner_common/marker_utils/utils.hpp"
 #include "behavior_path_planner_common/utils/drivable_area_expansion/static_drivable_area.hpp"
 #include "behavior_path_planner_common/utils/path_utils.hpp"
-#include "motion_utils/trajectory/conversion.hpp"
+#include "motion_utils/trajectory/tmp_conversion.hpp"
 
 #include <tier4_autoware_utils/ros/update_param.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
@@ -161,7 +161,8 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
       turn_signal_search_time, turn_signal_intersection_angle_threshold_deg);
   }
 
-  steering_factor_interface_ptr_ = std::make_unique<SteeringFactorInterface>(this, "intersection");
+  // steering_factor_interface_ptr_ = std::make_unique<SteeringFactorInterface>(this,
+  // "intersection");
 
   // Start timer
   {
@@ -473,33 +474,33 @@ void BehaviorPathPlannerNode::computeTurnSignal(
   hazard_signal_publisher_->publish(hazard_signal);
 
   publish_turn_signal_debug_data(debug_data);
-  publish_steering_factor(planner_data, turn_signal);
+  // publish_steering_factor(planner_data, turn_signal);
 }
 
-void BehaviorPathPlannerNode::publish_steering_factor(
-  const std::shared_ptr<PlannerData> & planner_data, const TurnIndicatorsCommand & turn_signal)
-{
-  const auto [intersection_flag, approaching_intersection_flag] =
-    planner_data->turn_signal_decider.getIntersectionTurnSignalFlag();
-  if (intersection_flag || approaching_intersection_flag) {
-    const uint16_t steering_factor_direction = std::invoke([&turn_signal]() {
-      if (turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
-        return SteeringFactor::LEFT;
-      }
-      return SteeringFactor::RIGHT;
-    });
+// void BehaviorPathPlannerNode::publish_steering_factor(
+//   const std::shared_ptr<PlannerData> & planner_data, const TurnIndicatorsCommand & turn_signal)
+// {
+//   const auto [intersection_flag, approaching_intersection_flag] =
+//     planner_data->turn_signal_decider.getIntersectionTurnSignalFlag();
+//   if (intersection_flag || approaching_intersection_flag) {
+//     const uint16_t steering_factor_direction = std::invoke([&turn_signal]() {
+//       if (turn_signal.command == TurnIndicatorsCommand::ENABLE_LEFT) {
+//         return SteeringFactor::LEFT;
+//       }
+//       return SteeringFactor::RIGHT;
+//     });
 
-    const auto [intersection_pose, intersection_distance] =
-      planner_data->turn_signal_decider.getIntersectionPoseAndDistance();
+//     const auto [intersection_pose, intersection_distance] =
+//       planner_data->turn_signal_decider.getIntersectionPoseAndDistance();
 
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {intersection_pose, intersection_pose}, {intersection_distance, intersection_distance},
-      PlanningBehavior::INTERSECTION, steering_factor_direction, SteeringFactor::TURNING, "");
-  } else {
-    steering_factor_interface_ptr_->clearSteeringFactors();
-  }
-  steering_factor_interface_ptr_->publishSteeringFactor(get_clock()->now());
-}
+//     steering_factor_interface_ptr_->updateSteeringFactor(
+//       {intersection_pose, intersection_pose}, {intersection_distance, intersection_distance},
+//       PlanningBehavior::INTERSECTION, steering_factor_direction, SteeringFactor::TURNING, "");
+//   } else {
+//     steering_factor_interface_ptr_->clearSteeringFactors();
+//   }
+//   steering_factor_interface_ptr_->publishSteeringFactor(get_clock()->now());
+// }
 
 void BehaviorPathPlannerNode::publish_reroute_availability() const
 {

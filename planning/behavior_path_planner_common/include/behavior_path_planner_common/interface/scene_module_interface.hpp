@@ -34,7 +34,7 @@
 #include <tier4_autoware_utils/ros/marker_helper.hpp>
 #include <tier4_autoware_utils/ros/uuid_helper.hpp>
 
-#include <autoware_adapi_v1_msgs/msg/planning_behavior.hpp>
+// #include <autoware_adapi_v1_msgs/msg/planning_behavior.hpp>
 #include <autoware_adapi_v1_msgs/msg/steering_factor_array.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <tier4_planning_msgs/msg/avoidance_debug_msg_array.hpp>
@@ -54,7 +54,7 @@
 
 namespace behavior_path_planner
 {
-using autoware_adapi_v1_msgs::msg::PlanningBehavior;
+// using autoware_adapi_v1_msgs::msg::PlanningBehavior;
 using autoware_adapi_v1_msgs::msg::SteeringFactor;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using objects_of_interest_marker_interface::ColorName;
@@ -92,9 +92,9 @@ public:
     clock_{node.get_clock()},
     rtc_interface_ptr_map_(std::move(rtc_interface_ptr_map)),
     objects_of_interest_marker_interface_ptr_map_(
-      std::move(objects_of_interest_marker_interface_ptr_map)),
-    steering_factor_interface_ptr_(
-      std::make_unique<SteeringFactorInterface>(&node, utils::convertToSnakeCase(name)))
+      std::move(objects_of_interest_marker_interface_ptr_map))
+  // steering_factor_interface_ptr_(
+  //   std::make_unique<SteeringFactorInterface>(&node, utils::convertToSnakeCase(name)))
   {
     for (const auto & [module_name, ptr] : rtc_interface_ptr_map_) {
       uuid_map_.emplace(module_name, generateUUID());
@@ -183,7 +183,7 @@ public:
     publishRTCStatus();
     unlockNewModuleLaunch();
     unlockOutputPath();
-    steering_factor_interface_ptr_->clearSteeringFactors();
+    // steering_factor_interface_ptr_->clearSteeringFactors();
 
     stop_reason_ = StopReason();
 
@@ -211,13 +211,13 @@ public:
     }
   }
 
-  void publishSteeringFactor()
-  {
-    if (!steering_factor_interface_ptr_) {
-      return;
-    }
-    steering_factor_interface_ptr_->publishSteeringFactor(clock_->now());
-  }
+  // void publishSteeringFactor()
+  // {
+  //   if (!steering_factor_interface_ptr_) {
+  //     return;
+  //   }
+  //   steering_factor_interface_ptr_->publishSteeringFactor(clock_->now());
+  // }
 
   void lockRTCCommand()
   {
@@ -617,7 +617,7 @@ protected:
   std::unordered_map<std::string, std::shared_ptr<ObjectsOfInterestMarkerInterface>>
     objects_of_interest_marker_interface_ptr_map_;
 
-  std::unique_ptr<SteeringFactorInterface> steering_factor_interface_ptr_;
+  // std::unique_ptr<SteeringFactorInterface> steering_factor_interface_ptr_;
 
   mutable std::optional<Pose> stop_pose_{std::nullopt};
 

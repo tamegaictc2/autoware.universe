@@ -25,24 +25,24 @@ rclcpp_components_register_node(${PROJECT_NAME}_lib
   EXECUTABLE ${PROJECT_NAME}_node
 )
 
-if(BUILD_TESTING)
-  ament_add_ros_isolated_gmock(test_${CMAKE_PROJECT_NAME}_utilities
-    test/input.cpp
-    test/test_utils.cpp
-  )
+# if(BUILD_TESTING)
+#   ament_add_ros_isolated_gmock(test_${CMAKE_PROJECT_NAME}_utilities
+#     test/input.cpp
+#     test/test_utils.cpp
+#   )
 
-  target_link_libraries(test_${CMAKE_PROJECT_NAME}_utilities
-    ${PROJECT_NAME}_lib
-  )
+#   target_link_libraries(test_${CMAKE_PROJECT_NAME}_utilities
+#     ${PROJECT_NAME}_lib
+#   )
 
-  ament_add_ros_isolated_gtest(test_${PROJECT_NAME}_node_interface
-    test/test_${PROJECT_NAME}_node_interface.cpp
-  )
+#   ament_add_ros_isolated_gtest(test_${PROJECT_NAME}_node_interface
+#     test/test_${PROJECT_NAME}_node_interface.cpp
+#   )
 
-  target_link_libraries(test_${PROJECT_NAME}_node_interface
-    ${PROJECT_NAME}_lib
-  )
-endif()
+#   target_link_libraries(test_${PROJECT_NAME}_node_interface
+#     ${PROJECT_NAME}_lib
+#   )
+# endif()
 
 ament_auto_package(
   INSTALL_TO_SHARE

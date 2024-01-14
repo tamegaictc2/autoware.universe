@@ -286,7 +286,7 @@ private:
 
     module_ptr->publishRTCStatus();
 
-    module_ptr->publishSteeringFactor();
+    // module_ptr->publishSteeringFactor();
 
     module_ptr->publishObjectsOfInterestMarker();
 

@@ -35,8 +35,8 @@ std::optional<double> calcFeasibleDecelDistance(
     return 0.0;
   }
 
-  auto min_stop_distance = calcDecelDistWithJerkAndAccConstraints(
-    v_now, target_velocity, a_now, -acc_lim, jerk_lim, -1.0 * jerk_lim);
+  auto min_stop_distance = utils::toStdOptional(calcDecelDistWithJerkAndAccConstraints(
+    v_now, target_velocity, a_now, -acc_lim, jerk_lim, -1.0 * jerk_lim));
 
   if (!min_stop_distance) {
     return {};
