@@ -31,6 +31,7 @@
 #include <tier4_external_api_msgs/msg/emergency.hpp>
 #include <tier4_system_msgs/msg/diagnostic_graph.hpp>
 #include <tier4_system_msgs/msg/operation_mode_availability.hpp>
+#include <tier4_perception_msgs/msg/detected_objects_with_feature.hpp>
 
 class Remapper : public rclcpp::Node
 {
@@ -64,6 +65,20 @@ private:
   rclcpp::Subscription<tier4_system_msgs::msg::DiagnosticGraph>::SharedPtr sub_diagnostics_graph_;
   rclcpp::Subscription<tier4_system_msgs::msg::DiagnosticGraph>::SharedPtr
     sub_diagnostics_graph_supervisor_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois0_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois1_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois2_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois3_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois4_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois5_;
+  rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    sub_rois6_;
 
   // Publisher
   rclcpp::Publisher<tier4_system_msgs::msg::OperationModeAvailability>::SharedPtr
@@ -90,6 +105,20 @@ private:
   rclcpp::Publisher<tier4_system_msgs::msg::DiagnosticGraph>::SharedPtr pub_diagnostics_graph_;
   rclcpp::Publisher<tier4_system_msgs::msg::DiagnosticGraph>::SharedPtr
     pub_diagnostics_graph_supervisor_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois0_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois1_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois2_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois3_;
+    rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois4_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois5_;
+  rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
+    pub_rois6_;
 
   void onOperationModeAvailability(
     const tier4_system_msgs::msg::OperationModeAvailability::ConstSharedPtr msg);
@@ -115,6 +144,21 @@ private:
   void onDiagnosticGraph(const tier4_system_msgs::msg::DiagnosticGraph::ConstSharedPtr msg);
   void onDiagnosticGraphSupervisor(
     const tier4_system_msgs::msg::DiagnosticGraph::ConstSharedPtr msg);
+  void onRois0(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois1(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois2(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois3(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois4(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois5(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+  void onRois6(
+    const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg);
+
 };
 
 #endif  // REMAPPER__REMAPPER_CORE_HPP_

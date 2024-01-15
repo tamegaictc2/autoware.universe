@@ -19,6 +19,21 @@
   <arg name="input_mrm_state" default="/api/fail_safe/mrm_state"/>
   <arg name="input_diagnostics_graph" default="/diagnostics_graph"/>
   <arg name="input_diagnostics_graph_supervisor" default="/diagnostics_graph/supervisor"/>
+  <arg name="input_rois0" default="/perception/object_recognition/detection/rois0/rois"/>
+  <arg name="input_rois1" default="/perception/object_recognition/detection/rois1/rois"/>
+  <arg name="input_rois2" default="/perception/object_recognition/detection/rois2/rois"/>
+  <arg name="input_rois3" default="/perception/object_recognition/detection/rois3/rois"/>
+  <arg name="input_rois4" default="/perception/object_recognition/detection/rois4/rois"/>
+  <arg name="input_rois5" default="/perception/object_recognition/detection/rois5/rois"/>
+  <arg name="input_rois6" default="/perception/object_recognition/detection/rois6/rois"/>
+  
+  <arg name="output_rois0" default="/perception/object_recognition/detection/rois0"/>
+  <arg name="output_rois1" default="/perception/object_recognition/detection/rois1"/>
+  <arg name="output_rois2" default="/perception/object_recognition/detection/rois2"/>
+  <arg name="output_rois3" default="/perception/object_recognition/detection/rois3"/>
+  <arg name="output_rois4" default="/perception/object_recognition/detection/rois4"/>
+  <arg name="output_rois5" default="/perception/object_recognition/detection/rois5"/>
+  <arg name="output_rois6" default="/perception/object_recognition/detection/rois6"/>
 
   <group>
     <node pkg="remapper" exec="remapper" name="remapper" output="screen">
@@ -40,6 +55,15 @@
       <remap from="~/input/api/fail_safe/mrm_state" to="$(var input_mrm_state)"/>
       <remap from="~/input/diagnostics_graph" to="$(var input_diagnostics_graph)"/>
       <remap from="~/input/diagnostics_graph/supervisor" to="$(var input_diagnostics_graph_supervisor)"/>
+
+      <remap from="~/input/rois0" to="$(var input_rois0)"/>
+      <remap from="~/input/rois1" to="$(var input_rois1)"/>
+      <remap from="~/input/rois2" to="$(var input_rois2)"/>
+      <remap from="~/input/rois3" to="$(var input_rois3)"/>
+      <remap from="~/input/rois4" to="$(var input_rois4)"/>
+      <remap from="~/input/rois5" to="$(var input_rois5)"/>
+      <remap from="~/input/rois6" to="$(var input_rois6)"/>
+      
       <!-- output -->
       <remap from="~/output/system/operation_mode/availability" to="/$(var ecu_name)$(var input_operation_mode_availability)/$(var ecu_name)"/>
       <remap from="~/output/j6/to_can_bus" to="/$(var ecu_name)$(var input_to_can_bus)"/>
@@ -58,6 +82,14 @@
       <remap from="~/output/api/fail_safe/mrm_state" to="/$(var ecu_name)$(var input_mrm_state)"/>
       <remap from="~/output/diagnostics_graph" to="/$(var ecu_name)$(var input_diagnostics_graph)"/>
       <remap from="~/output/diagnostics_graph/supervisor" to="/$(var ecu_name)$(var input_diagnostics_graph_supervisor)"/>
+
+      <remap from="~/output/rois0" to="$(var output_rois0)"/>
+      <remap from="~/output/rois1" to="$(var output_rois1)"/>
+      <remap from="~/output/rois2" to="$(var output_rois2)"/>
+      <remap from="~/output/rois3" to="$(var output_rois3)"/>
+      <remap from="~/output/rois4" to="$(var output_rois4)"/>
+      <remap from="~/output/rois5" to="$(var output_rois5)"/>
+      <remap from="~/output/rois6" to="$(var output_rois6)"/>
     </node>
   </group>
 </launch>

@@ -60,6 +60,28 @@ Remapper::Remapper() : Node("remapper")
   sub_diagnostics_graph_supervisor_ = create_subscription<tier4_system_msgs::msg::DiagnosticGraph>(
     "~/input/diagnostics_graph/supervisor", rclcpp::QoS{1},
     std::bind(&Remapper::onDiagnosticGraphSupervisor, this, _1));
+  sub_rois0_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois0", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois0, this, _1));
+  sub_rois1_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois1", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois1, this, _1));
+  sub_rois2_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois2", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois2, this, _1));
+  sub_rois3_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois3", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois3, this, _1));
+  sub_rois4_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois4", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois4, this, _1));
+  sub_rois5_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois5", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois5, this, _1));
+  sub_rois6_ = create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/input/rois6", rclcpp::QoS{1},
+    std::bind(&Remapper::onRois6, this, _1));
+
 
   // Publisher
   pub_operation_mode_availability_ =
@@ -93,6 +115,20 @@ Remapper::Remapper() : Node("remapper")
     "~/output/diagnostics_graph", rclcpp::QoS{1});
   pub_diagnostics_graph_supervisor_ = create_publisher<tier4_system_msgs::msg::DiagnosticGraph>(
     "~/output/diagnostics_graph/supervisor", rclcpp::QoS{1});
+  pub_rois0_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois0", rclcpp::QoS{1});
+  pub_rois1_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois1", rclcpp::QoS{1});
+  pub_rois2_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois2", rclcpp::QoS{1});
+  pub_rois3_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois3", rclcpp::QoS{1});
+  pub_rois4_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois4", rclcpp::QoS{1});
+  pub_rois5_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois5", rclcpp::QoS{1});
+  pub_rois6_ = create_publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+    "~/output/rois6", rclcpp::QoS{1});
 }
 
 void Remapper::onOperationModeAvailability(
@@ -176,4 +212,46 @@ void Remapper::onDiagnosticGraphSupervisor(
   const tier4_system_msgs::msg::DiagnosticGraph::ConstSharedPtr msg)
 {
   pub_diagnostics_graph_supervisor_->publish(*msg);
+}
+
+void Remapper::onRois0(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois0_->publish(*msg);
+}
+
+void Remapper::onRois1(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois1_->publish(*msg);
+}
+
+void Remapper::onRois2(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois2_->publish(*msg);
+}
+
+void Remapper::onRois3(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois3_->publish(*msg);
+}
+
+void Remapper::onRois4(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois4_->publish(*msg);
+}
+
+void Remapper::onRois5(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois5_->publish(*msg);
+}
+
+void Remapper::onRois6(
+  const tier4_perception_msgs::msg::DetectedObjectsWithFeature::ConstSharedPtr msg)
+{
+  pub_rois6_->publish(*msg);
 }
