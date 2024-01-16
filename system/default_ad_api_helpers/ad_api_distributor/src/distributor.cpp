@@ -83,6 +83,7 @@ void Distributor::on_initialize(
   const autoware_adapi_v1_msgs::srv::InitializeLocalization::Response::SharedPtr res)
 {
   if (!cli_main_initialize_->service_is_ready() || !cli_sub_initialize_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/localization/initialize service is not ready");
     res->status.success = false;
     return;
   }
@@ -96,6 +97,7 @@ void Distributor::on_set_route(
   const autoware_adapi_v1_msgs::srv::SetRoute::Response::SharedPtr res)
 {
   if (!cli_main_set_route_->service_is_ready() || !cli_sub_set_route_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/routing/set_route service is not ready");
     res->status.success = false;
     return;
   }
@@ -109,6 +111,7 @@ void Distributor::on_clear_route(
   const autoware_adapi_v1_msgs::srv::ClearRoute::Response::SharedPtr res)
 {
   if (!cli_main_clear_route_->service_is_ready() || !cli_sub_clear_route_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/routing/clear_route service is not ready");
     res->status.success = false;
     return;
   }
@@ -122,6 +125,7 @@ void Distributor::on_change_to_stop(
   const autoware_adapi_v1_msgs::srv::ChangeOperationMode::Response::SharedPtr res)
 {
   if (!cli_main_stop_mode_->service_is_ready() || !cli_sub_stop_mode_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/operation_mode/change_to_stop service is not ready");
     res->status.success = false;
     return;
   }
@@ -137,6 +141,7 @@ void Distributor::on_change_to_autonomous(
   if (
     !cli_main_autonomous_mode_->service_is_ready() ||
     !cli_sub_autonomous_mode_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/operation_mode/change_to_autonomous service is not ready");
     res->status.success = false;
     return;
   }
@@ -150,6 +155,7 @@ void Distributor::on_change_route(
   const autoware_adapi_v1_msgs::srv::SetRoute::Response::SharedPtr res)
 {
   if (!cli_main_change_route_->service_is_ready() || !cli_sub_change_route_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/routing/change_route service is not ready");
     res->status.success = false;
     return;
   }
@@ -163,6 +169,7 @@ void Distributor::on_change_route_points(
   const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res)
 {
   if (!cli_main_change_route_points_->service_is_ready() || !cli_sub_change_route_points_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/routing/change_route_points service is not ready");
     res->status.success = false;
     return;
   }
@@ -176,6 +183,7 @@ void Distributor::on_set_route_points(
   const autoware_adapi_v1_msgs::srv::SetRoutePoints::Response::SharedPtr res)
 {
   if (!cli_main_set_route_points_->service_is_ready() || !cli_sub_set_route_points_->service_is_ready()) {
+    RCLCPP_INFO(this->get_logger(), "Main or Sub ECU's /api/routing/set_route_points service is not ready");
     res->status.success = false;
     return;
   }
