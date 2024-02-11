@@ -1949,11 +1949,43 @@ std::pair<bool, bool> GoalPlannerModule::isSafePath() const
       ego_predicted_path_params_, pull_over_path.points, current_pose, current_velocity,
       ego_seg_idx, is_object_front, limit_to_max_velocity);
 
-  // filtering objects based on the current position's lane
+  const Pose ego_pose_for_expand = std::invoke([&]() {
+    // get first road lane in pull over lanes segment
+    const auto fist_road_lane = std::invoke([&]() {
+      const auto first_pull_over_lane = pull_over_lanes.front();
+      if (!route_handler->isShoulderLanelet(first_pull_over_lane)) {
+        return first_pull_over_lane;
+      }
+      const auto road_lane_opt = left_side_parking_
+                                   ? route_handler->getRightLanelet(first_pull_over_lane)
+                                   : route_handler->getLeftLanelet(first_pull_over_lane);
+      if (road_lane_opt) {
+        return road_lane_opt.value();
+      }
+      return first_pull_over_lane;
+    });
+    // generate first road lane pose
+    Pose first_road_pose{};
+    const auto first_road_point =
+      lanelet::utils::conversion::toGeomMsgPt(fist_road_lane.centerline().front());
+    const double lane_yaw = lanelet::utils::getLaneletAngle(fist_road_lane, first_road_point);
+    first_road_pose.position = first_road_point;
+    first_road_pose.orientation = tier4_autoware_utils::createQuaternionFromYaw(lane_yaw);
+    // if current ego pose is before pull over lanes segment, use first road lanelet center pose
+    if (
+      calcSignedArcLength(pull_over_path.points, first_road_pose.position, current_pose.position) <
+      0.0) {
+      return first_road_pose;
+    }
+    // if current ego pose is in pull over lanes segment, use current ego pose
+    return current_pose;
+  });
+
   const auto expanded_pull_over_lanes_between_ego =
     goal_planner_utils::generateBetweenEgoAndExpandedPullOverLanes(
-      pull_over_lanes, left_side_parking_, current_pose, planner_data_->parameters.vehicle_info,
-      parameters_->outer_road_detection_offset, parameters_->inner_road_detection_offset);
+      pull_over_lanes, left_side_parking_, ego_pose_for_expand,
+      planner_data_->parameters.vehicle_info, parameters_->outer_road_detection_offset,
+      parameters_->inner_road_detection_offset);
   const auto merged_expanded_pull_over_lanes =
     lanelet::utils::combineLaneletsShape(expanded_pull_over_lanes_between_ego);
   debug_data_.expanded_pull_over_lane_between_ego = merged_expanded_pull_over_lanes;
