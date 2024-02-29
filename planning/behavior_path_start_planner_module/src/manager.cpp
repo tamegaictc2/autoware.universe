@@ -53,6 +53,10 @@ void StartPlannerModuleManager::init(rclcpp::Node * node)
   p.enable_shift_pull_out = node->declare_parameter<bool>(ns + "enable_shift_pull_out");
   p.check_shift_path_lane_departure =
     node->declare_parameter<bool>(ns + "check_shift_path_lane_departure");
+  p.allow_check_shift_path_lane_departure_override =
+    node->declare_parameter<bool>(ns + "allow_check_shift_path_lane_departure_override");
+  p.shift_collision_check_distance_from_end =
+    node->declare_parameter<double>(ns + "shift_collision_check_distance_from_end");
   p.minimum_shift_pull_out_distance =
     node->declare_parameter<double>(ns + "minimum_shift_pull_out_distance");
   p.lateral_acceleration_sampling_num =
