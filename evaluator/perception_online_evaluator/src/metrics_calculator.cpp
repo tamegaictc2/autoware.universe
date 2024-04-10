@@ -270,6 +270,7 @@ MetricStatMap MetricsCalculator::calcPredictedPathDeviationMetrics(
 Stat<double> MetricsCalculator::calcPredictedPathDeviationMetrics(
   const PredictedObjects & objects, const double time_horizon) const
 {
+  const bool accumulate_deviations = true;
   // For each object, select the predicted path that is closest to the history path and store the
   // distance to the history path
   std::unordered_map<std::string, std::unordered_map<size_t, std::vector<double>>>
@@ -318,19 +319,26 @@ Stat<double> MetricsCalculator::calcPredictedPathDeviationMetrics(
   // Select the predicted path with the smallest deviation for each object
   std::unordered_map<std::string, std::vector<double>> deviation_map_for_objects;
   for (const auto & [uuid, deviation_map] : deviation_map_for_paths) {
-    size_t min_deviation_index = 0;
-    double min_sum_deviation = std::numeric_limits<double>::max();
+    std::optional<std::pair<size_t, double>> min_deviation_pair;
     for (const auto & [i, deviations] : deviation_map) {
       if (deviations.empty()) {
         continue;
       }
-      const double sum = std::accumulate(deviations.begin(), deviations.end(), 0.0);
-      if (sum < min_sum_deviation) {
-        min_sum_deviation = sum;
-        min_deviation_index = i;
+      // If accumulate_deviations is true, the deviation is the sum of the deviations up to the
+      // horizon_time. Otherwise, the deviation is the deviation at the horizon_time.
+      const double deviation = accumulate_deviations
+                                 ? std::accumulate(deviations.begin(), deviations.end(), 0.0)
+                                 : deviations.back();
+      if (!min_deviation_pair.has_value() || deviation < min_deviation_pair->second) {
+        min_deviation_pair = std::make_pair(i, deviation);
       }
     }
-    deviation_map_for_objects[uuid] = deviation_map.at(min_deviation_index);
+    if (!min_deviation_pair.has_value()) {
+      continue;
+    }
+
+    const auto [min_deviation_index, min_deviation] = min_deviation_pair.value();
+    deviation_map_for_objects[uuid] = {min_deviation};
 
     // debug: save the delayed target object and the corresponding predicted path
     const auto path_id = uuid + "_" + std::to_string(min_deviation_index);
