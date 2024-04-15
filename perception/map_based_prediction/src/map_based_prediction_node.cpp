@@ -42,13 +42,14 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #endif
 
-#include <glog/logging.h>
+// #include <glog/logging.h>
 
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <functional>
 #include <limits>
+#include <vector>
 
 namespace map_based_prediction
 {
@@ -715,8 +716,8 @@ void replaceObjectYawWithLaneletsYaw(
 MapBasedPredictionNode::MapBasedPredictionNode(const rclcpp::NodeOptions & node_options)
 : Node("map_based_prediction", node_options), debug_accumulated_time_(0.0)
 {
-  google::InitGoogleLogging("map_based_prediction_node");
-  google::InstallFailureSignalHandler();
+  // google::InitGoogleLogging("map_based_prediction_node");
+  // google::InstallFailureSignalHandler();
   enable_delay_compensation_ = declare_parameter<bool>("enable_delay_compensation");
   prediction_time_horizon_ = declare_parameter<double>("prediction_time_horizon");
   lateral_control_time_horizon_ =
@@ -896,6 +897,9 @@ void MapBasedPredictionNode::objectsCallback(const TrackedObjects::ConstSharedPt
   if (!lanelet_map_ptr_) {
     return;
   }
+
+  std::vector<int> v;
+  std::cerr << "v = " << v.back() << std::endl;
 
   auto world2map_transform = transform_listener_.getTransform(
     "map",                        // target

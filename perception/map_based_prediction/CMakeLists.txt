@@ -5,8 +5,8 @@ find_package(autoware_cmake REQUIRED)
 autoware_package()
 
 find_package(Eigen3 REQUIRED)
-
-find_package(glog REQUIRED)
+find_package(backward_ros REQUIRED)
+# find_package(glog REQUIRED)
 
 include_directories(
   SYSTEM
@@ -19,7 +19,7 @@ ament_auto_add_library(map_based_prediction_node SHARED
   src/debug.cpp
 )
 
-target_link_libraries(map_based_prediction_node glog::glog)
+# target_link_libraries(map_based_prediction_node glog::glog)
 
 rclcpp_components_register_node(map_based_prediction_node
   PLUGIN "map_based_prediction::MapBasedPredictionNode"
