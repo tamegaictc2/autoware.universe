@@ -17,6 +17,7 @@
     detection_height: 10.0
     objects_count_window_seconds: 3.0
 
+    # todo(kosuke55): separate the parameters for each metrics
     target_object:
       car:
         check_deviation: true
@@ -33,7 +34,7 @@
       pedestrian:
         check_deviation: true
       unknown:
-        check_deviation: false
+        check_deviation: true
 
     debug_marker:
       history_path: false
