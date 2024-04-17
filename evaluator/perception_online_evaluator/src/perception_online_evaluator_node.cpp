@@ -48,6 +48,8 @@ PerceptionOnlineEvaluatorNode::PerceptionOnlineEvaluatorNode(
 
   objects_sub_ = create_subscription<PredictedObjects>(
     "~/input/objects", 1, std::bind(&PerceptionOnlineEvaluatorNode::onObjects, this, _1));
+  // odom_sub_ = create_subscription<Odometry>(
+  //   "~/input/odometry", 1, std::bind(&PerceptionOnlineEvaluatorNode::onOdometry, this, _1));
   metrics_pub_ = create_publisher<DiagnosticArray>("~/metrics", 1);
   pub_marker_ = create_publisher<MarkerArray>("~/markers", 10);
 
@@ -112,6 +114,7 @@ DiagnosticStatus PerceptionOnlineEvaluatorNode::generateDiagnosticStatus(
 void PerceptionOnlineEvaluatorNode::onObjects(const PredictedObjects::ConstSharedPtr objects_msg)
 {
   metrics_calculator_.setPredictedObjects(*objects_msg);
+  metrics_calculator_.updateObjectsCountMap(*objects_msg, *tf_buffer_);
   publishMetrics();
 }
 
@@ -215,6 +218,9 @@ rcl_interfaces::msg::SetParametersResult PerceptionOnlineEvaluatorNode::onParame
 
   updateParam<size_t>(parameters, "smoothing_window_size", p->smoothing_window_size);
   updateParam<double>(parameters, "stopped_velocity_threshold", p->stopped_velocity_threshold);
+  updateParam<double>(parameters, "detection_radius", p->detection_radius);
+  updateParam<double>(parameters, "detection_height", p->detection_height);
+  updateParam<double>(parameters, "objects_count_window_seconds", p->objects_count_window_seconds);
 
   // update metrics
   {
@@ -307,6 +313,10 @@ void PerceptionOnlineEvaluatorNode::initParameter()
     getOrDeclareParameter<std::vector<double>>(*this, "prediction_time_horizons");
   p->stopped_velocity_threshold =
     getOrDeclareParameter<double>(*this, "stopped_velocity_threshold");
+  p->detection_radius = getOrDeclareParameter<double>(*this, "detection_radius");
+  p->detection_height = getOrDeclareParameter<double>(*this, "detection_height");
+  p->objects_count_window_seconds =
+    getOrDeclareParameter<double>(*this, "objects_count_window_seconds");
 
   // set metrics
   const auto selected_metrics =

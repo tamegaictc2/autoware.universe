@@ -15,6 +15,8 @@ The evaluated metrics are as follows:
 - lateral_deviation
 - yaw_deviation
 - yaw_rate
+- historical_object_count
+- interval_object_count
 
 ### Predicted Path Deviation / Predicted Path Deviation Variance
 
@@ -89,6 +91,10 @@ Calculates the yaw rate of an object based on the change in yaw angle from the p
 
 ![yaw_rate](./images/yaw_rate.drawio.svg)
 
+### Historical Object Count / Interval Object Count
+
+Counts the number of detections for each object class within the specified detection range.
+
 ## Inputs / Outputs
 
 | Name              | Type                                                   | Description                                       |
@@ -99,14 +105,17 @@ Calculates the yaw rate of an object based on the change in yaw angle from the p
 
 ## Parameters
 
-| Name                              | Type         | Description                                                                                      |
-| --------------------------------- | ------------ | ------------------------------------------------------------------------------------------------ |
-| `selected_metrics`                | List         | Metrics to be evaluated, such as lateral deviation, yaw deviation, and predicted path deviation. |
-| `smoothing_window_size`           | Integer      | Determines the window size for smoothing path, should be an odd number.                          |
-| `prediction_time_horizons`        | list[double] | Time horizons for prediction evaluation in seconds.                                              |
-| `stopped_velocity_threshold`      | double       | threshold velocity to check if vehicle is stopped                                                |
-| `target_object.*.check_deviation` | bool         | Whether to check deviation for specific object types (car, truck, etc.).                         |
-| `debug_marker.*`                  | bool         | Debugging parameters for marker visualization (history path, predicted path, etc.).              |
+| Name                              | Type         | Description                                                                                                                                     |
+| --------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `selected_metrics`                | List         | Metrics to be evaluated, such as lateral deviation, yaw deviation, and predicted path deviation.                                                |
+| `smoothing_window_size`           | Integer      | Determines the window size for smoothing path, should be an odd number.                                                                         |
+| `prediction_time_horizons`        | list[double] | Time horizons for prediction evaluation in seconds.                                                                                             |
+| `stopped_velocity_threshold`      | double       | threshold velocity to check if vehicle is stopped                                                                                               |
+| `detection_radius`                | double       | Detection radius for objects to be evaluated.(used for objects count only)                                                                      |
+| `detection_height`                | double       | Detection height for objects to be evaluated. (used for objects count only)                                                                     |
+| `objects_count_window_seconds`    | double       | Time window for keeping object detection counts. The number of object detections within this time window is stored in `detection_count_vector_` |
+| `target_object.*.check_deviation` | bool         | Whether to check deviation for specific object types (car, truck, etc.).                                                                        |
+| `debug_marker.*`                  | bool         | Debugging parameters for marker visualization (history path, predicted path, etc.).                                                             |
 
 ## Assumptions / Known limits
 

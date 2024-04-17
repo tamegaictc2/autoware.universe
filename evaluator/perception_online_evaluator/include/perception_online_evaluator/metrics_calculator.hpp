@@ -20,16 +20,21 @@
 #include "perception_online_evaluator/parameters.hpp"
 #include "perception_online_evaluator/stat.hpp"
 #include "perception_online_evaluator/utils/objects_filtering.hpp"
+#include "tf2_ros/buffer.h"
 
 #include <rclcpp/time.hpp>
 
+#include "autoware_auto_perception_msgs/msg/object_classification.hpp"
 #include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include <unique_identifier_msgs/msg/uuid.hpp>
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <optional>
+#include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -76,6 +81,19 @@ using StampObjectMap = std::map<rclcpp::Time, PredictedObject>;
 using StampObjectMapIterator = std::map<rclcpp::Time, PredictedObject>::const_iterator;
 using ObjectMap = std::unordered_map<std::string, StampObjectMap>;
 
+struct DetectionCountMap : std::unordered_map<std::uint8_t, int>
+{
+  DetectionCountMap()
+  : std::unordered_map<std::uint8_t, int>{
+      {ObjectClassification::UNKNOWN, 0}, {ObjectClassification::CAR, 0},
+      {ObjectClassification::TRUCK, 0},   {ObjectClassification::BUS, 0},
+      {ObjectClassification::TRAILER, 0}, {ObjectClassification::MOTORCYCLE, 0},
+      {ObjectClassification::BICYCLE, 0}, {ObjectClassification::PEDESTRIAN, 0},
+    }
+  {
+  }
+};
+
 class MetricsCalculator
 {
 public:
@@ -95,6 +113,10 @@ public:
    */
   void setPredictedObjects(const PredictedObjects & objects);
 
+  void setEgoPose(const geometry_msgs::msg::Pose & pose) { ego_pose_ = pose; }
+
+  void updateObjectsCountMap(const PredictedObjects & objects, const tf2_ros::Buffer & tf_buffer);
+
   HistoryPathMap getHistoryPathMap() const { return history_path_map_; }
   ObjectDataMap getDebugObjectData() const { return debug_target_object_; }
 
@@ -105,7 +127,13 @@ private:
   ObjectMap object_map_;
   HistoryPathMap history_path_map_;
 
+  DetectionCountMap historical_detection_count_map_;
+  int objects_count_frame_ = 0;
+  std::vector<std::pair<DetectionCountMap, rclcpp::Time>> detection_count_vector_{};
+
   rclcpp::Time current_stamp_;
+
+  std::optional<Pose> ego_pose_;
 
   // debug
   mutable ObjectDataMap debug_target_object_;
@@ -129,6 +157,7 @@ private:
   PredictedPathDeviationMetrics calcPredictedPathDeviationMetrics(
     const PredictedObjects & objects, const double time_horizon) const;
   MetricStatMap calcYawRateMetrics(const ClassObjectsMap & class_objects_map) const;
+  MetricStatMap calcObjectsCountMetrics() const;
 
   bool hasPassedTime(const rclcpp::Time stamp) const;
   bool hasPassedTime(const std::string uuid, const rclcpp::Time stamp) const;
