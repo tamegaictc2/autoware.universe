@@ -24,17 +24,14 @@ rclcpp_components_register_node(${AEB_NODE}
 
 
 if(BUILD_TESTING)
-  ament_add_gtest(test_${PROJECT_NAME}
+  find_package(ament_cmake_gtest REQUIRED)
+  set(TEST_AEB_SOURCES
     test/aeb_node_test.cpp
   )
-
-  target_link_libraries(test_${PROJECT_NAME}
-    ${PROJECT_NAME}
-  )
-
-  target_include_directories(test_${PROJECT_NAME} PRIVATE src)
+  set(TEST_AEB_EXE test_aeb)
+  ament_add_gtest(${TEST_AEB_EXE} ${TEST_AEB_SOURCES})
+  target_link_libraries(${TEST_AEB_EXE} ${AEB_NODE})
 endif()
-
 
 ament_auto_package(
   INSTALL_TO_SHARE

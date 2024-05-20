@@ -285,9 +285,6 @@ public:
 
   void addCollisionMarker(const ObjectData & data, MarkerArray & debug_markers);
 
-  std::optional<double> calcObjectSpeedFromHistory(
-    const ObjectData & closest_object, const Path & path, const double current_ego_speed);
-
   PointCloud2::SharedPtr obstacle_ros_pointcloud_ptr_{nullptr};
   VelocityReport::ConstSharedPtr current_velocity_ptr_{nullptr};
   Vector3::SharedPtr angular_velocity_ptr_{nullptr};
