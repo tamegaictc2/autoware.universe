@@ -410,6 +410,7 @@ bool EmergencyHandler::isEmergency()
 bool EmergencyHandler::isStopped()
 {
   auto odom = sub_odom_.takeData();
+  if(odom == nullptr) return false;
   constexpr auto th_stopped_velocity = 0.001;
   return (odom->twist.twist.linear.x < th_stopped_velocity);
 }
@@ -418,17 +419,20 @@ bool EmergencyHandler::isAutonomous()
 {
   using autoware_auto_vehicle_msgs::msg::ControlModeReport;
   auto mode = sub_control_mode_.takeData();
+  if(mode == nullptr) return false;
   return mode->mode == ControlModeReport::AUTONOMOUS;
 }
 
 bool EmergencyHandler::isComfortableStopStatusAvailable()
 {
   auto status = sub_mrm_comfortable_stop_status_.takeData();
+  if(status == nullptr) return false;
   return status->state != tier4_system_msgs::msg::MrmBehaviorStatus::NOT_AVAILABLE;
 }
 
 bool EmergencyHandler::isEmergencyStopStatusAvailable()
 {
   auto status = sub_mrm_emergency_stop_status_.takeData();
+  if(status == nullptr) return false;
   return status->state != tier4_system_msgs::msg::MrmBehaviorStatus::NOT_AVAILABLE;
 }
