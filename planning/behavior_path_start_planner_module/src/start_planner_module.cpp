@@ -594,6 +594,7 @@ PriorityOrder StartPlannerModule::determinePriorityOrder(
         order_priority.emplace_back(i, planner);
       }
     }
+    return order_priority;
   } else if (search_priority == "short_back_distance") {
     for (size_t i = 0; i < candidates_size; i++) {
       for (const auto & planner : start_planners_) {
