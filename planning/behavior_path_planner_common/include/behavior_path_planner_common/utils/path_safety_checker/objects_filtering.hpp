@@ -56,9 +56,10 @@ using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
  *
  * @param objects The predicted objects to filter.
  * @param lanelet
+ * @param angle threshold
  * @return result.
  */
-bool isCentroidWithinLanelet(const PredictedObject & object, const lanelet::ConstLanelet & lanelet);
+bool isCentroidWithinLanelet(const PredictedObject & object, const lanelet::ConstLanelet & lanelet, const double angle_threshold);
 
 /**
  * @brief Filters objects based on object polygon overlapping with lanelet.
@@ -67,7 +68,7 @@ bool isCentroidWithinLanelet(const PredictedObject & object, const lanelet::Cons
  * @param lanelet
  * @return result.
  */
-bool isPolygonOverlapLanelet(const PredictedObject & object, const lanelet::ConstLanelet & lanelet);
+bool isPolygonOverlapLanelet(const PredictedObject & object, const lanelet::ConstLanelet & lanelet, const double angle_threshold);
 
 bool isPolygonOverlapLanelet(
   const PredictedObject & object, const tier4_autoware_utils::Polygon2d & lanelet_polygon);
@@ -168,7 +169,8 @@ void filterObjectsByClass(
  */
 std::pair<std::vector<size_t>, std::vector<size_t>> separateObjectIndicesByLanelets(
   const PredictedObjects & objects, const lanelet::ConstLanelets & target_lanelets,
-  const std::function<bool(const PredictedObject, const lanelet::ConstLanelet)> & condition);
+  const std::function<bool(const PredictedObject, const lanelet::ConstLanelet, const double)> & condition,
+  const double angle_threshold = M_PI);
 
 /**
  * @brief Separate the objects into two part based on whether the object is within lanelet.
@@ -176,7 +178,8 @@ std::pair<std::vector<size_t>, std::vector<size_t>> separateObjectIndicesByLanel
  */
 std::pair<PredictedObjects, PredictedObjects> separateObjectsByLanelets(
   const PredictedObjects & objects, const lanelet::ConstLanelets & target_lanelets,
-  const std::function<bool(const PredictedObject, const lanelet::ConstLanelet)> & condition);
+  const std::function<bool(const PredictedObject, const lanelet::ConstLanelet, const double)> & condition, 
+  const double angle_threshold = M_PI);
 
 /**
  * @brief Get the predicted path from an object.
