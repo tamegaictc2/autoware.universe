@@ -24,11 +24,11 @@ namespace autoware::vehicle_info_utils
 /// This is a convenience class for saving you from declaring all parameters
 /// manually and calculating derived parameters.
 /// This class supposes that necessary parameters are set when the node is launched.
-class VehicleInfoUtil
+class VehicleInfoUtils
 {
 public:
   /// Constructor
-  explicit VehicleInfoUtil(rclcpp::Node & node);
+  explicit VehicleInfoUtils(rclcpp::Node & node);
 
   /// Get vehicle info
   VehicleInfo getVehicleInfo();

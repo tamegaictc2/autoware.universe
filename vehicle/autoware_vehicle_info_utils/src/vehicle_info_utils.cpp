@@ -38,7 +38,7 @@ T getParameter(rclcpp::Node & node, const std::string & name)
 
 namespace autoware::vehicle_info_utils
 {
-VehicleInfoUtil::VehicleInfoUtil(rclcpp::Node & node)
+VehicleInfoUtils::VehicleInfoUtils(rclcpp::Node & node)
 {
   vehicle_info_.wheel_radius_m = getParameter<double>(node, "wheel_radius");
   vehicle_info_.wheel_width_m = getParameter<double>(node, "wheel_width");
@@ -52,7 +52,7 @@ VehicleInfoUtil::VehicleInfoUtil(rclcpp::Node & node)
   vehicle_info_.max_steer_angle_rad = getParameter<double>(node, "max_steer_angle");
 }
 
-VehicleInfo VehicleInfoUtil::getVehicleInfo()
+VehicleInfo VehicleInfoUtils::getVehicleInfo()
 {
   return createVehicleInfo(
     vehicle_info_.wheel_radius_m, vehicle_info_.wheel_width_m, vehicle_info_.wheel_base_m,
