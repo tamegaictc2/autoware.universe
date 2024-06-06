@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "vehicle_info_util/vehicle_info_util.hpp"
+#include "autoware_vehicle_info_utils/vehicle_info_utils.hpp"
 
 #include <string>
 
@@ -36,7 +36,7 @@ T getParameter(rclcpp::Node & node, const std::string & name)
 }
 }  // namespace
 
-namespace vehicle_info_util
+namespace autoware::vehicle_info_utils
 {
 VehicleInfoUtil::VehicleInfoUtil(rclcpp::Node & node)
 {
@@ -60,4 +60,4 @@ VehicleInfo VehicleInfoUtil::getVehicleInfo()
     vehicle_info_.left_overhang_m, vehicle_info_.right_overhang_m, vehicle_info_.vehicle_height_m,
     vehicle_info_.max_steer_angle_rad);
 }
-}  // namespace vehicle_info_util
+}  // namespace autoware::vehicle_info_utils
