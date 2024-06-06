@@ -80,6 +80,6 @@ private:
   VelocityLimit hardest_limit_{};
   VelocityLimitTable velocity_limit_table_;
 };
-}
+}  // namespace autoware::external_velocity_limit_selector
 
 #endif  // AUTOWARE_EXTERNAL_VELOCITY_LIMIT_SELECTOR__EXTERNAL_VELOCITY_LIMIT_SELECTOR_NODE_HPP_
