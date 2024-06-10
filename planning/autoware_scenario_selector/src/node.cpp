@@ -32,11 +32,6 @@ namespace autoware::scenario_selector
 {
 namespace
 {
-template <class T>
-void onData(const T & data, T * buffer)
-{
-  *buffer = data;
-}
 
 std::shared_ptr<lanelet::ConstPolygon3d> findNearestParkinglot(
   const std::shared_ptr<lanelet::LaneletMap> & lanelet_map_ptr,
@@ -136,9 +131,12 @@ autoware_planning_msgs::msg::Trajectory::ConstSharedPtr ScenarioSelectorNode::ge
 
 std::string ScenarioSelectorNode::selectScenarioByPosition()
 {
-  const auto is_in_lane = isInLane(lanelet_map_ptr_, current_pose_->pose.pose.position);
-  const auto is_goal_in_lane = isInLane(lanelet_map_ptr_, route_->goal_pose.position);
-  const auto is_in_parking_lot = isInParkingLot(lanelet_map_ptr_, current_pose_->pose.pose);
+  const auto is_in_lane =
+    isInLane(route_handler_->getLaneletMapPtr(), current_pose_->pose.pose.position);
+  const auto is_goal_in_lane =
+    isInLane(route_handler_->getLaneletMapPtr(), route_->goal_pose.position);
+  const auto is_in_parking_lot =
+    isInParkingLot(route_handler_->getLaneletMapPtr(), current_pose_->pose.pose);
 
   if (current_scenario_ == tier4_planning_msgs::msg::Scenario::EMPTY) {
     if (is_in_lane && is_goal_in_lane) {
@@ -186,26 +184,6 @@ void ScenarioSelectorNode::updateCurrentScenario()
   }
 }
 
-void ScenarioSelectorNode::onMap(const autoware_map_msgs::msg::LaneletMapBin::ConstSharedPtr msg)
-{
-  lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
-  lanelet::utils::conversion::fromBinMsg(
-    *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
-  route_handler_ = std::make_shared<route_handler::RouteHandler>(*msg);
-}
-
-void ScenarioSelectorNode::onRoute(
-  const autoware_planning_msgs::msg::LaneletRoute::ConstSharedPtr msg)
-{
-  // When the route id is the same (e.g. rerouting with modified goal) keep the current scenario.
-  // Otherwise, reset the scenario.
-  if (!route_handler_ || route_handler_->getRouteUuid() != msg->uuid) {
-    current_scenario_ = tier4_planning_msgs::msg::Scenario::EMPTY;
-  }
-
-  route_ = msg;
-}
-
 void ScenarioSelectorNode::onOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
   current_pose_ = msg;
@@ -229,11 +207,6 @@ void ScenarioSelectorNode::onOdom(const nav_msgs::msg::Odometry::ConstSharedPtr 
   }
 }
 
-void ScenarioSelectorNode::onParkingState(const std_msgs::msg::Bool::ConstSharedPtr msg)
-{
-  is_parking_completed_ = msg->data;
-}
-
 bool ScenarioSelectorNode::isDataReady()
 {
   if (!current_pose_) {
@@ -241,8 +214,9 @@ bool ScenarioSelectorNode::isDataReady()
     return false;
   }
 
-  if (!lanelet_map_ptr_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "Waiting for lanelet map.");
+  if (!route_handler_) {
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000, "Waiting for route handler.");
     return false;
   }
 
@@ -257,7 +231,6 @@ bool ScenarioSelectorNode::isDataReady()
   }
 
   // Check route handler is ready
-  route_handler_->setRoute(*route_);
   if (!route_handler_->isHandlerReady()) {
     RCLCPP_WARN_THROTTLE(
       this->get_logger(), *this->get_clock(), 5000, "Waiting for route handler.");
@@ -267,8 +240,42 @@ bool ScenarioSelectorNode::isDataReady()
   return true;
 }
 
+void ScenarioSelectorNode::updatePollingData()
+{
+  {
+    auto msg = sub_lanelet_map_->takeData();
+    route_handler_ = msg ? std::make_shared<route_handler::RouteHandler>(*msg) : route_handler_;
+  }
+
+  {
+    auto msg = sub_parking_state_->takeData();
+    is_parking_completed_ = msg ? msg->data : is_parking_completed_;
+  }
+
+  {
+    auto msgs = sub_odom_->takeData();
+    for (const auto & msg : msgs) {
+      onOdom(msg);
+    }
+  }
+
+  {
+    auto msg = sub_route_->takeData();
+    route_ = msg ? msg : route_;
+  }
+
+  if (route_ && route_handler_) {
+    route_handler_->setRoute(*route_);
+    current_scenario_ = (route_handler_->getRouteUuid() != route_->uuid)
+                          ? tier4_planning_msgs::msg::Scenario::EMPTY
+                          : current_scenario_;
+  }
+}
+
 void ScenarioSelectorNode::onTimer()
 {
+  updatePollingData();
+
   if (!isDataReady()) {
     return;
   }
@@ -348,18 +355,17 @@ ScenarioSelectorNode::ScenarioSelectorNode(const rclcpp::NodeOptions & node_opti
     "input/parking/trajectory", rclcpp::QoS{1},
     std::bind(&ScenarioSelectorNode::onParkingTrajectory, this, std::placeholders::_1));
 
-  sub_lanelet_map_ = this->create_subscription<autoware_map_msgs::msg::LaneletMapBin>(
-    "input/lanelet_map", rclcpp::QoS{1}.transient_local(),
-    std::bind(&ScenarioSelectorNode::onMap, this, std::placeholders::_1));
-  sub_route_ = this->create_subscription<autoware_planning_msgs::msg::LaneletRoute>(
-    "input/route", rclcpp::QoS{1}.transient_local(),
-    std::bind(&ScenarioSelectorNode::onRoute, this, std::placeholders::_1));
-  sub_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
-    "input/odometry", rclcpp::QoS{100},
-    std::bind(&ScenarioSelectorNode::onOdom, this, std::placeholders::_1));
-  sub_parking_state_ = this->create_subscription<std_msgs::msg::Bool>(
-    "is_parking_completed", rclcpp::QoS{100},
-    std::bind(&ScenarioSelectorNode::onParkingState, this, std::placeholders::_1));
+  sub_lanelet_map_ = decltype(sub_lanelet_map_)::element_type::create_subscription(
+    this, "input/lanelet_map", rclcpp::QoS{1}.transient_local());
+
+  sub_route_ =
+    decltype(sub_route_)::element_type::create_subscription(this, "input/route", rclcpp::QoS{1});
+
+  sub_odom_ = decltype(sub_odom_)::element_type::create_subscription(
+    this, "input/odometry", rclcpp::QoS{100});
+
+  sub_parking_state_ = decltype(sub_parking_state_)::element_type::create_subscription(
+    this, "is_parking_completed", rclcpp::QoS{1});
 
   // Output
   pub_scenario_ =
