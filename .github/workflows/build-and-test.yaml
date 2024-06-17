@@ -1,10 +1,12 @@
 name: build-and-test
 
 on:
-  push:
-  schedule:
-    - cron: 0 0 * * *
   workflow_dispatch:
+    inputs:
+      target_branch_or_tag:
+        description: 'Set target branch or tag for build and test'
+        required: true
+        default: 'main'
 
 jobs:
   build-and-test:
@@ -26,6 +28,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch_or_tag }}
 
       - name: Show disk space before the tasks
         run: df -h
