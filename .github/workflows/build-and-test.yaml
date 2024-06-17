@@ -31,9 +31,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.target_branch_or_tag }}
 
-      - name: Display checked out branch or tag
-        run: echo "Checked out branch/tag to: ${{ github.event.inputs.target_branch_or_tag }}"
-
       - name: Show disk space before the tasks
         run: df -h
 
