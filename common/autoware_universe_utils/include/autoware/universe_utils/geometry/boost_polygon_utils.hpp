@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_UNIVERSE_UTILS__GEOMETRY__BOOST_POLYGON_UTILS_HPP_
 #define AUTOWARE_UNIVERSE_UTILS__GEOMETRY__BOOST_POLYGON_UTILS_HPP_
 
-#include "autoware_universe_utils/geometry/boost_geometry.hpp"
+#include "autoware/universe_utils/geometry/boost_geometry.hpp"
 
 #include <autoware_perception_msgs/msg/detected_object.hpp>
 #include <autoware_perception_msgs/msg/predicted_object.hpp>

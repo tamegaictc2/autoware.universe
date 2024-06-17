@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_UNIVERSE_UTILS__ROS__DEBUG_PUBLISHER_HPP_
 #define AUTOWARE_UNIVERSE_UTILS__ROS__DEBUG_PUBLISHER_HPP_
 
-#include "autoware_universe_utils/ros/debug_traits.hpp"
+#include "autoware/universe_utils/ros/debug_traits.hpp"
 
 #include <rclcpp/publisher_base.hpp>
 #include <rclcpp/rclcpp.hpp>

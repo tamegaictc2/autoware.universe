@@ -22,7 +22,7 @@
 
 // =============== How to use ===============
 // ___In your_node.hpp___
-// #include "autoware_universe_utils/ros/logger_level_configure.hpp"
+// #include "autoware/universe_utils/ros/logger_level_configure.hpp"
 // class YourNode : public rclcpp::Node {
 //   ...
 //

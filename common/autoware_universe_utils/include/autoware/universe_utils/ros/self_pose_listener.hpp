@@ -15,8 +15,8 @@
 #ifndef AUTOWARE_UNIVERSE_UTILS__ROS__SELF_POSE_LISTENER_HPP_
 #define AUTOWARE_UNIVERSE_UTILS__ROS__SELF_POSE_LISTENER_HPP_
 
-#include "autoware_universe_utils/geometry/geometry.hpp"
-#include "autoware_universe_utils/ros/transform_listener.hpp"
+#include "autoware/universe_utils/geometry/geometry.hpp"
+#include "autoware/universe_utils/ros/transform_listener.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 

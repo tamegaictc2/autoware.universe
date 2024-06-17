@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_UNIVERSE_UTILS__MATH__UNIT_CONVERSION_HPP_
 #define AUTOWARE_UNIVERSE_UTILS__MATH__UNIT_CONVERSION_HPP_
 
-#include "autoware_universe_utils/math/constants.hpp"
+#include "autoware/universe_utils/math/constants.hpp"
 
 namespace autoware_universe_utils
 {
