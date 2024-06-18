@@ -85,4 +85,16 @@ VehicleInfo createVehicleInfo(
   };
 }
 
+double VehicleInfo::calcMaxCurvature() const
+{
+  const double radius = wheel_base_m / std::tan(max_steer_angle_rad);
+  const double curvature = 1.0 / radius;
+  return curvature;
+}
+double VehicleInfo::calcCurvatureFromSteerAngle(const double steer_angle) const
+{
+  const double radius = wheel_base_m / std::tan(steer_angle);
+  const double curvature = 1.0 / radius;
+  return curvature;
+}
 }  // namespace autoware::vehicle_info_utils

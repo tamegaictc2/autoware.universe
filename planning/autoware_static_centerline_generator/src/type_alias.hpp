@@ -40,6 +40,7 @@ using autoware_universe_utils::LinearRing2d;
 using autoware_universe_utils::LineString2d;
 using autoware_universe_utils::Point2d;
 using tier4_planning_msgs::msg::PathWithLaneId;
+using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 }  // namespace autoware::static_centerline_generator
 
