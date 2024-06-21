@@ -156,6 +156,7 @@ protected:
   unsigned current_goal_{0};
   State state_{State::INITIALIZING};
   std::vector<PoseStamped::ConstSharedPtr> goals_list_{};
+  std::vector<std::string> goals_name_list_{};
   std::map<unsigned, std::pair<std::string, unsigned>> goals_achieved_{};
   std::string goals_achieved_file_path_{};
 

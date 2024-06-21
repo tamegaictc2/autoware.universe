@@ -219,6 +219,7 @@ void AutowareAutomaticGoalPanel::onClickRemove()
 {
   if (static_cast<unsigned>(goals_list_widget_ptr_->currentRow()) < goals_list_.size())
     goals_list_.erase(goals_list_.begin() + goals_list_widget_ptr_->currentRow());
+    goals_name_list_.erase(goals_name_list_.begin() + goals_list_widget_ptr_->currentRow());
   resetAchievedGoals();
   updateGUI();
   updateGoalsList();
@@ -452,7 +453,7 @@ void AutowareAutomaticGoalPanel::publishMarkers()
     marker.color.b = 1.0;
     marker.color.a = 1.0;
     marker.frame_locked = false;
-    marker.text = "G" + std::to_string(i);
+    marker.text = goals_name_list_[i];
     text_array.markers.push_back(marker);
     marker.ns = "poses";
     marker.scale.y = 0.2;
