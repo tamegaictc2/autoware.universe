@@ -1,0 +1,9 @@
+<library path="tier4_rosbag_tool_rviz_plugin">
+
+  <class
+    type="RosbagTooPanel"
+    base_class_type="rviz_common::Panel">
+    <description>RosbagTooPanel</description>
+  </class>
+
+</library>
